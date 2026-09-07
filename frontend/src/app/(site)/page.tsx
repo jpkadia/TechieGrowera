@@ -3,14 +3,15 @@ import { ArrowUpRight, Code2, Sparkles, Search, Check, MoveUpRight } from 'lucid
 import { ButtonLink, SectionHeading, CTA, FAQList, TextLink } from '@/components/ui';
 import { ServiceCards, WorkCard, BlogCard } from '@/components/cards';
 import { generalFaqs } from '@/content/services';
-import { caseStudies, posts } from '@/content/editorial';
+import { getCaseStudies, getPosts } from '@/lib/published-content';
 import { pageMetadata } from '@/lib/site';
 export const metadata = pageMetadata(
   'Web, Creative & Digital Growth Agency',
   'Techie Growera brings website development, SEO, design, video, social media and performance marketing together to grow your digital presence.',
   '/',
 );
-export default function Home() {
+export default async function Home() {
+  const [caseStudies, posts] = await Promise.all([getCaseStudies(), getPosts()]);
   return (
     <>
       <section className="hero">
@@ -261,7 +262,7 @@ export default function Home() {
           <TextLink href="/portfolio">View our work</TextLink>
         </div>
         <div className="work-grid">
-          {caseStudies.map((s) => (
+          {caseStudies.slice(0, 2).map((s) => (
             <WorkCard key={s.slug} study={s} />
           ))}
         </div>
@@ -298,7 +299,7 @@ export default function Home() {
           <TextLink href="/blog">Read all insights</TextLink>
         </div>
         <div className="blog-grid">
-          {posts.map((p, i) => (
+          {posts.slice(0, 3).map((p, i) => (
             <BlogCard key={p.slug} post={p} index={i} />
           ))}
         </div>

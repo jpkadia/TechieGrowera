@@ -1,16 +1,14 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { posts } from '@/content/editorial';
+import { getPosts } from '@/lib/published-content';
 import { getService } from '@/content/services';
 import { Breadcrumbs, CTA, JsonLd, SectionHeading, TextLink } from '@/components/ui';
 import { BlogCard } from '@/components/cards';
 import { absolute, pageMetadata } from '@/lib/site';
-export const dynamicParams = false;
-export function generateStaticParams() {
-  return posts.map(({ slug }) => ({ slug }));
-}
+export const dynamicParams = true;
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const posts = await getPosts();
   const p = posts.find((p) => p.slug === slug);
   if (!p) return {};
   const base = pageMetadata(p.seoTitle, p.metaDescription, p.canonicalPath);
@@ -27,6 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 export default async function Post({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const posts = await getPosts();
   const p = posts.find((p) => p.slug === slug);
   if (!p) notFound();
   return (

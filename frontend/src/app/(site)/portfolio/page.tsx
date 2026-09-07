@@ -1,13 +1,14 @@
 import { Breadcrumbs, CTA } from '@/components/ui';
 import { WorkCard } from '@/components/cards';
-import { caseStudies } from '@/content/editorial';
+import { getCaseStudies } from '@/lib/published-content';
 import { pageMetadata } from '@/lib/site';
 export const metadata = pageMetadata(
   'Portfolio & Concept Work',
   'Explore clearly labelled concept projects demonstrating Techie Growera’s approach to website design, brand identity and creative systems.',
   '/portfolio',
 );
-export default function Portfolio() {
+export default async function Portfolio() {
+  const caseStudies = await getCaseStudies();
   return (
     <>
       <section className="page-hero">

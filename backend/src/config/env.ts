@@ -10,6 +10,9 @@ const schema = z.object({
   FRONTEND_ORIGIN: z.url().default('http://localhost:3000'),
   API_PROXY_SECRET: z.string().default(''),
   RATE_LIMIT_SALT: z.string().default(''),
+  ADMIN_EMAIL: z.string().email().or(z.literal('')).default(''),
+  ADMIN_PASSWORD: z.string().default(''),
+  ADMIN_SESSION_SECRET: z.string().default(''),
 });
 export const env = schema.parse(process.env);
 if (

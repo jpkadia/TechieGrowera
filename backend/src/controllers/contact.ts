@@ -5,13 +5,11 @@ export async function createContact(req: Request, res: Response, next: NextFunct
   try {
     const parsed = contactSchema.safeParse(req.body);
     if (!parsed.success)
-      return res
-        .status(422)
-        .json({
-          ok: false,
-          message: 'Please check the form fields.',
-          errors: parsed.error.flatten().fieldErrors,
-        });
+      return res.status(422).json({
+        ok: false,
+        message: 'Please check the form fields.',
+        errors: parsed.error.flatten().fieldErrors,
+      });
     const { website, startedAt, ...lead } = parsed.data;
     const elapsed = Date.now() - startedAt;
     if (website || elapsed < 2500 || elapsed > 24 * 60 * 60 * 1000)

@@ -54,13 +54,21 @@ export function WorkCard({ study }: { study: CaseStudy }) {
         aria-label={`View ${study.client} concept`}
         className={`work-visual ${study.theme}`}
       >
-        <span className="concept-label">CONCEPT PROJECT · NOT CLIENT WORK</span>
+        <span className="concept-label">
+          {study.demo ? 'CONCEPT PROJECT · NOT CLIENT WORK' : 'PROJECT CASE STUDY'}
+        </span>
         <div className="project-identity">
-          <span>{study.theme === 'studio' ? 'N /' : 'df.'}</span>
+          <span>
+            {study.demo ? (study.theme === 'studio' ? 'N /' : 'df.') : study.client.slice(0, 1)}
+          </span>
           <h3>
             {study.client}
             <span>
-              {study.theme === 'studio' ? 'Spaces for living well.' : 'Good design. Every day.'}
+              {study.demo
+                ? study.theme === 'studio'
+                  ? 'Spaces for living well.'
+                  : 'Good design. Every day.'
+                : study.industry}
             </span>
           </h3>
         </div>
@@ -76,7 +84,7 @@ export function WorkCard({ study }: { study: CaseStudy }) {
           </h3>
           <p>{study.description}</p>
         </div>
-        <span className="pill">Demo</span>
+        <span className="pill">{study.demo ? 'Demo' : 'Case study'}</span>
       </div>
     </article>
   );

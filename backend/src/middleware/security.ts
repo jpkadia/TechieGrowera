@@ -7,12 +7,10 @@ import { RateBucket } from '../models/index.js';
 export function authenticateProxy(req: Request, res: Response, next: NextFunction) {
   const given = req.get('x-api-proxy-secret') || '';
   if (!env.API_PROXY_SECRET)
-    return res
-      .status(503)
-      .json({
-        ok: false,
-        message: 'Enquiries are temporarily unavailable. Please try again later.',
-      });
+    return res.status(503).json({
+      ok: false,
+      message: 'Enquiries are temporarily unavailable. Please try again later.',
+    });
   const a = Buffer.from(given);
   const b = Buffer.from(env.API_PROXY_SECRET);
   if (a.length !== b.length || !timingSafeEqual(a, b))

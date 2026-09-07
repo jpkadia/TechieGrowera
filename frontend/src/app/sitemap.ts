@@ -1,9 +1,11 @@
 import type { MetadataRoute } from 'next';
 import { services } from '@/content/services';
-import { posts, caseStudies } from '@/content/editorial';
+import { getPosts, getCaseStudies } from '@/lib/published-content';
 import { absolute, site } from '@/lib/site';
-export default function sitemap(): MetadataRoute.Sitemap {
+export const dynamic = 'force-dynamic';
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!site.indexable) return [];
+  const [posts, caseStudies] = await Promise.all([getPosts(), getCaseStudies()]);
   return [
     ...[
       '/',

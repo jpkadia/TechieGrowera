@@ -2,6 +2,10 @@
 
 A responsive web, creative and digital growth agency website built with Next.js 16.3.4 (current stable npm version checked during setup), React 19, App Router, TypeScript, Tailwind CSS 4, Express 5 and Mongoose/MongoDB. Designed around the supplied navy/teal identity. No GitHub repository was created, no commits were pushed, and no deployment was performed.
 
+## Admin panel
+
+Open http://localhost:3000/admin/login after `npm run dev`. Credentials are configured in ignored `backend/.env`. Dashboard, enquiry statuses, article/case study publishing and activity logs are ready. See [Admin configuration and operations](docs/ADMIN.md).
+
 ## Structure
 
 ```text
@@ -29,7 +33,7 @@ Confirmed business details are in frontend/src/content/business.ts: founders Par
 
 ## Pages and functionality
 
-Home, About, Services, seven detailed service pages, Portfolio, Case Studies, two clearly labelled demo case study detail pages, Blog, three full articles, Contact, Privacy Policy, Terms and a custom 404. Public content is rendered on the server and statically generated. Service pages have unique problems, solutions, deliverables, processes, use cases, FAQs and related links. The form provides pending, success and failure states and supports service preselection.
+Home, About, Services, seven detailed service pages, Portfolio, Case Studies, two clearly labelled demo case study detail pages, Blog, three full articles, Contact, Privacy Policy, Terms and a custom 404. Public content is server-rendered; service/business pages are static, while CMS articles and case studies render per request. Service pages have unique problems, solutions, deliverables, processes, use cases, FAQs and related links. The form provides pending, success and failure states and supports service preselection.
 
 ## Prerequisites and local setup
 
@@ -86,7 +90,7 @@ The implementation uses Vercel's platform-provided client-IP header on Vercel. O
 - Express `POST /api/contact`: proxy authentication, shared MongoDB rate limit, Zod validation, text normalization, honeypot and timing checks, then a real database insert. Returns 201 only after persistence; 401, 422, 429 and 503 have explicit failure meanings.
 - Express `GET /api/health`: liveness only; it does not claim database readiness or reveal credentials.
 
-ContactLead stores the enquiry, consent, privacy version and status with timestamps. BlogPost and CaseStudy provide unique slug indexes and editorial fields for future CMS work; current published articles and case studies come from typed static content. RateBucket uses HMAC-derived IP keys, atomic increments and a TTL index. The limit is five requests per visitor per 15-minute fixed window; an additional instance-local guard protects short bursts. It is baseline abuse protection, not a bot-proof guarantee. No lead-list or admin endpoints are public.
+ContactLead stores the enquiry, consent, privacy version and status with timestamps. BlogPost and CaseStudy store separate draft and published snapshots with unique slugs and revision checks. AdminSession stores hashed sessions; AdminAuditLog records administrative activity. CMS_ENABLED=true serves published MongoDB records. RateBucket uses HMAC-derived IP keys, atomic increments and a TTL index. The limit is five requests per visitor per 15-minute fixed window; an additional instance-local guard protects short bursts. It is baseline abuse protection, not a bot-proof guarantee. No lead-list or admin endpoints are public.
 
 Create an Atlas database and an application user with the minimum required permissions for that database. Configure network access for the deployment environment, select appropriate regions and enable backups. Keep credentials server-only. Create indexes explicitly before launch:
 
@@ -94,7 +98,7 @@ Create an Atlas database and an application user with the minimum required permi
 npm run db:indexes -w backend
 ```
 
-Production disables automatic index building. The URI must specify the intended database. Use Atlas access controls and operational procedures for lead review, retention and deletion; there is no inbox/admin UI in this scope.
+Production disables automatic index building. The URI must specify the intended database. Use Atlas access controls and operational procedures for lead review, retention and deletion; the authenticated admin provides an enquiry inbox and editorial workflow. See [Admin guide](docs/ADMIN.md).
 
 ## SEO and performance
 
@@ -141,4 +145,3 @@ Official guide: [Getting started with Search Console](https://developers.google.
 Domain and deployment access, Atlas configuration, actual city/service area, legal business identity and reviewed policies, optional founder biographies/photos, actual portfolio materials and approved testimonials. Founder names, email, both phone numbers and Instagram are already added. Optional Search Console and GA identifiers can be added later. Do not send secrets through public content or commit environment files.
 
 After launch, publish first-hand useful content, keep service pages accurate, develop real case studies, earn relevant genuine links and review Search Console regularly. Technical SEO creates a strong foundation; it cannot guarantee a first-place ranking.
-

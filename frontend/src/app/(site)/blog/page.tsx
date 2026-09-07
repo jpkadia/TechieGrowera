@@ -1,13 +1,14 @@
 import { Breadcrumbs, CTA } from '@/components/ui';
 import { BlogCard } from '@/components/cards';
-import { posts } from '@/content/editorial';
+import { getPosts } from '@/lib/published-content';
 import { pageMetadata } from '@/lib/site';
 export const metadata = pageMetadata(
   'Insights on Web, Creative & Growth',
   'Practical articles on website planning, content strategy and campaign preparation from Techie Growera.',
   '/blog',
 );
-export default function Blog() {
+export default async function Blog() {
+  const posts = await getPosts();
   return (
     <>
       <section className="page-hero">

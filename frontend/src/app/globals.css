@@ -275,7 +275,9 @@ h3 {
   letter-spacing: -0.065em;
   margin: 25px 0;
 }
-.hero-copy { min-width: 0; }
+.hero-copy {
+  min-width: 0;
+}
 .hero-copy h1 > span:first-of-type {
   color: var(--teal);
 }

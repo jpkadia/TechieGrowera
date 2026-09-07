@@ -5,6 +5,8 @@ import { rateLimit } from 'express-rate-limit';
 import { env } from './config/env.js';
 import { contactRouter } from './routes/contact.js';
 import { errorHandler } from './middleware/error.js';
+import { adminRouter } from './routes/admin.js';
+import { publishedRouter } from './routes/published.js';
 const app = express();
 app.disable('x-powered-by');
 app.use(helmet());
@@ -31,6 +33,8 @@ app.use(
     message: { ok: false, message: 'Too many requests. Please try again shortly.' },
   }),
 );
+app.use('/api/admin', express.json({ limit: '256kb', type: 'application/json' }), adminRouter);
+app.use('/api/published', publishedRouter);
 app.use(express.json({ limit: '16kb', type: 'application/json' }));
 app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'techie-growera-api' }));
 app.use('/api/contact', contactRouter);

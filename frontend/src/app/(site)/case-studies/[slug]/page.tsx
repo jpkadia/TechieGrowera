@@ -1,20 +1,19 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { caseStudies } from '@/content/editorial';
+import { getCaseStudies } from '@/lib/published-content';
 import { getService } from '@/content/services';
 import { Breadcrumbs, CTA, CheckList } from '@/components/ui';
 import { pageMetadata } from '@/lib/site';
-export const dynamicParams = false;
-export function generateStaticParams() {
-  return caseStudies.map(({ slug }) => ({ slug }));
-}
+export const dynamicParams = true;
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const caseStudies = await getCaseStudies();
   const s = caseStudies.find((s) => s.slug === slug);
   return s ? pageMetadata(s.title, s.description, `/case-studies/${s.slug}`, s.demo) : {};
 }
 export default async function CaseStudyPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const caseStudies = await getCaseStudies();
   const s = caseStudies.find((s) => s.slug === slug);
   if (!s) notFound();
   return (
@@ -27,12 +26,17 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
               { label: s.client, href: `/case-studies/${s.slug}` },
             ]}
           />
-          <span className="eyebrow">{s.industry.toUpperCase()} · CONCEPT CASE STUDY</span>
+          <span className="eyebrow">
+            {s.industry.toUpperCase()} · {s.demo ? 'CONCEPT CASE STUDY' : 'CASE STUDY'}
+          </span>
           <h1>{s.title}</h1>
           <p className="intro">{s.description}</p>
-          <p className="demo-notice">
-            {s.client} is a fictional demo brand. This concept is not a completed client engagement.
-          </p>
+          {s.demo && (
+            <p className="demo-notice">
+              {s.client} is a fictional demo brand. This concept is not a completed client
+              engagement.
+            </p>
+          )}
         </div>
       </section>
       <section className="section container split">
@@ -47,7 +51,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
         <aside className="content-panel">
           <h2>Project details</h2>
           <p>
-            <strong>Brand:</strong> {s.client} (demo)
+            <strong>Brand:</strong> {s.client} {s.demo ? '(demo)' : ''}
             <br />
             <strong>Industry:</strong> {s.industry}
           </p>
