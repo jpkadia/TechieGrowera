@@ -1,0 +1,33 @@
+{
+  "name": "@techie-growera/backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "db:indexes": "tsx src/scripts/indexes.ts"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.19.0",
+    "helmet": "^8.1.0",
+    "cors": "^2.8.5",
+    "express-rate-limit": "^8.1.0",
+    "zod": "^4.1.0",
+    "dotenv": "^17.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "tsx": "^4.20.0",
+    "@types/node": "^22.0.0",
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.19",
+    "supertest": "^7.1.0",
+    "@types/supertest": "^6.0.0",
+    "mongodb-memory-server": "^10.2.0"
+  }
+}
