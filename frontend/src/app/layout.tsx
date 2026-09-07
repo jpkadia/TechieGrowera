@@ -16,7 +16,9 @@ export const metadata: Metadata = {
   },
   description:
     'Build and grow your digital presence with website development, SEO, creative and digital marketing.',
-  verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined },
+  verification: {
+    google: 'M1QXBY-KxnF-x6722-80svgefZMljThY0u42-YqL7vg',
+  },
   icons: { icon: '/brand/mark.svg', apple: '/brand/logo.png' },
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
