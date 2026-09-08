@@ -82,7 +82,7 @@ export default function About() {
             about your business, your ideas and the digital presence you want to build.
           </p>
           <div className="founder-grid">
-            {site.founders.map((name) => (
+            {site.founders.map(({ name, role }) => (
               <article key={name} className="founder-card">
                 <span aria-hidden="true" className="founder-initials">
                   {name
@@ -91,7 +91,7 @@ export default function About() {
                     .join('')}
                 </span>
                 <h3>{name}</h3>
-                <p>Co-founder</p>
+                <p>{role}</p>
               </article>
             ))}
           </div>

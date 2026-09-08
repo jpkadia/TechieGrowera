@@ -26,7 +26,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             logo: absolute('/brand/logo.png'),
             ...(site.email && { email: site.email }),
             ...(site.phone && { telephone: site.phone }),
-            founder: site.founders.map((name) => ({ '@type': 'Person', name })),
+            founder: site.founders.map(({ name, role }) => ({ '@type': 'Person', name, jobTitle: role })),
             contactPoint: site.phones.map((telephone) => ({
               '@type': 'ContactPoint',
               telephone,

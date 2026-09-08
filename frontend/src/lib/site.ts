@@ -25,10 +25,7 @@ export const site = {
   founders: business.founders,
   serviceArea: process.env.NEXT_PUBLIC_SERVICE_AREA || '',
   address: process.env.NEXT_PUBLIC_BUSINESS_ADDRESS || '',
-  socials: [
-    process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN,
-    process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM || business.instagram,
-  ].filter((value): value is string => !!value && /^https:\/\//.test(value)),
+  socials: [business.instagram],
 };
 export const absolute = (path: string) => new URL(path, site.url).toString();
 export function pageMetadata(
