@@ -6,7 +6,7 @@ export async function generateMetadata() {
   const caseStudies = await getCaseStudies();
   return pageMetadata(
     'Case Studies & Project Thinking',
-    'Read the brief, approach and deliverables behind Techie Growera’s illustrative website and creative concept projects.',
+    'Explore the brief, approach and deliverables behind Techie Growera projects. Concept work is clearly distinguished from verified client engagements.',
     '/case-studies',
     caseStudies.every((study) => study.demo),
   );
@@ -20,13 +20,13 @@ export default async function CaseStudies() {
           <Breadcrumbs items={[{ label: 'Case studies', href: '/case-studies' }]} />
           <span className="eyebrow">BEHIND THE DECISIONS</span>
           <h1>
-            The thinking is
-            <br />
-            part of the work.
+            Project briefs.
+            <br />Approach &amp; outcomes.
           </h1>
           <p className="intro">
-            Explore the problem, creative direction and proposed solution behind each concept. Real
-            client outcomes will be published only with verified information and permission.
+            Go beyond the preview: understand each project’s problem, approach and deliverables.
+            Concepts are labelled; client outcomes are published only with verified information
+            and permission.
           </p>
           {caseStudies.every((study) => study.demo) && (
             <p className="demo-notice">

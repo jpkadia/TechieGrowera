@@ -6,12 +6,14 @@ import { services } from '@/content/services';
 import { adminApi } from './api';
 import { AdminHeading, Notice } from './shared';
 import type { ContentItem } from './content';
+import { EditorialParagraph } from '@/components/editorial-paragraph';
 type Section = { heading: string; paragraphs: string[] };
 type Draft = {
   title: string;
   slug: string;
   excerpt?: string;
   author?: string;
+  authorType?: 'Organization' | 'Person';
   category?: string;
   tags?: string[];
   featuredImage?: string;
@@ -100,11 +102,22 @@ export function ContentEditor({ kind, id }: { kind: string; id: string }) {
     window.addEventListener('beforeunload', handler);
     const guard = (event: MouseEvent) => {
       const link = event.target instanceof Element ? event.target.closest('a[href]') : null;
-      if (!link || link.getAttribute('target') === '_blank' || link.getAttribute('href')?.startsWith('#')) return;
-      if (!window.confirm('Leave without saving your changes?')) { event.preventDefault(); event.stopPropagation(); }
+      if (
+        !link ||
+        link.getAttribute('target') === '_blank' ||
+        link.getAttribute('href')?.startsWith('#')
+      )
+        return;
+      if (!window.confirm('Leave without saving your changes?')) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
     };
-    document.addEventListener('click',guard,true);
-    return () => { window.removeEventListener('beforeunload', handler); document.removeEventListener('click',guard,true); };
+    document.addEventListener('click', guard, true);
+    return () => {
+      window.removeEventListener('beforeunload', handler);
+      document.removeEventListener('click', guard, true);
+    };
   }, [dirty]);
   function change(key: keyof Draft, value: unknown) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -202,11 +215,7 @@ export function ContentEditor({ kind, id }: { kind: string; id: string }) {
         title={id === 'new' ? 'Make something useful.' : 'Refine your story.'}
         text="Use clear, original content. Your changes stay private until you publish."
       >
-        <Link
-          href={`/admin/content/${kind}`}
-        >
-          ← Back to list
-        </Link>
+        <Link href={`/admin/content/${kind}`}>← Back to list</Link>
       </AdminHeading>
       <Notice text={error} error />
       <Notice text={message} />
@@ -255,7 +264,7 @@ export function ContentEditor({ kind, id }: { kind: string; id: string }) {
                 <section key={i}>
                   <h3>{s.heading}</h3>
                   {s.paragraphs.map((p, j) => (
-                    <p key={j}>{p}</p>
+                    <EditorialParagraph key={j} text={p} />
                   ))}
                 </section>
               ))
@@ -287,6 +296,16 @@ export function ContentEditor({ kind, id }: { kind: string; id: string }) {
                   {field('excerpt', 'Article summary', { area: true, max: 350 })}
                   <div className="admin-fields-two">
                     {field('author', 'Author', { max: 100 })}
+                    <label>
+                      Author type
+                      <select
+                        value={draft.authorType || 'Organization'}
+                        onChange={(e) => change('authorType', e.target.value)}
+                      >
+                        <option value="Organization">Editorial team / organization</option>
+                        <option value="Person">Individual author</option>
+                      </select>
+                    </label>
                     {field('category', 'Category', { max: 80 })}
                   </div>
                   <label>
@@ -383,8 +402,9 @@ export function ContentEditor({ kind, id }: { kind: string; id: string }) {
                           }
                         />
                         <small>
-                          Separate paragraphs with a blank line. Plain text only; HTML is not
-                          accepted.
+                          Separate paragraphs with a blank line. Links:
+                          [label](https://example.com). Lists: one item per line starting with - or
+                          1. HTML is not accepted.
                         </small>
                       </label>
                     </div>

@@ -124,6 +124,18 @@ test('archive removes content; restore remains private until republished', async
   );
   await auth('post', `content/blog/${id}/publish`).send({ revision: 5 }).expect(200);
 });
+test('unchanged republishing preserves the public modification date', async () => {
+  const { BlogPost } = await import('../src/models/index');
+  await BlogPost.updateOne({ _id: id }, { $set: { 'published.updatedAt': '2020-01-01' } });
+  await auth('post', `content/blog/${id}/publish`).send({ revision: 6 }).expect(200);
+  const unchanged = await BlogPost.findById(id).lean();
+  assert.equal(unchanged?.published.updatedAt, '2020-01-01');
+  await auth('put', `content/blog/${id}`).send({ revision: 7, draft: { ...draft, title: 'A substantially revised website guide' } }).expect(200);
+  await auth('post', `content/blog/${id}/publish`).send({ revision: 8 }).expect(200);
+  const changed = await BlogPost.findById(id).lean();
+  assert.notEqual(changed?.published.updatedAt, '2020-01-01');
+});
+
 test('enquiry status and audit event commit together with conflict checks', async () => {
   const { ContactLead } = await import('../src/models/index');
   const lead = await ContactLead.create({

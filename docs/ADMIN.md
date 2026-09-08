@@ -37,6 +37,8 @@ Admin pages and APIs carry noindex/no-store headers and never enter the sitemap.
 
 ## Verification
 
+The homepage now serves static core HTML; optional CMS cards load after hydration. Sitemap generation preserves its static URL entries during CMS outages. Full editorial pages still require the backend. See [Homepage reliability](HOMEPAGE-RELIABILITY.md) for the request flow, outage behavior and regression procedure.
+
 `npm run lint`, `npm test` and `npm run build` cover static checks, twenty isolated MongoDB integration tests and production compilation. `node scripts/audit-site.mjs` checks a running site's pages, links, images and metadata. `node scripts/audit-admin.mjs` checks local login/session/CSRF/noindex behavior using configured credentials; it creates login/logout audit events but no business content. It accepts only localhost targets.
 
 Security references: [OWASP session management](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html), [authentication](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html), [CSRF prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html).

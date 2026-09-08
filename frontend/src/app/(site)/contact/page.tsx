@@ -14,9 +14,8 @@ export default function Contact() {
           <Breadcrumbs items={[{ label: 'Contact', href: '/contact' }]} />
           <span className="eyebrow">LET’S BUILD WHAT’S NEXT</span>
           <h1>
-            A good place
-            <br />
-            to start.
+            Contact
+            <br />Techie Growera.
           </h1>
           <p className="intro">
             A new website, a clearer brand or a stronger digital presence. Tell us what you have in

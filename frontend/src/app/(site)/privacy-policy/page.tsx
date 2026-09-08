@@ -34,8 +34,8 @@ export default function Privacy() {
         </p>
         <h2>Storage and service providers</h2>
         <p>
-          When configured for launch, enquiry records are stored in MongoDB Atlas and the website
-          and API are hosted on Vercel. These providers process information as part of operating the
+          Enquiry records are stored in MongoDB Atlas. The website is hosted on Vercel and the
+          backend API on Render. These providers process information as part of operating the
           service. Hosting and database regions should be selected and recorded by the business
           before launch.
         </p>

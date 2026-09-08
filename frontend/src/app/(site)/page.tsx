@@ -1,17 +1,20 @@
 import Image from 'next/image';
 import { ArrowUpRight, Code2, Sparkles, Search, Check, MoveUpRight } from 'lucide-react';
 import { ButtonLink, SectionHeading, CTA, FAQList, TextLink } from '@/components/ui';
-import { ServiceCards, WorkCard, BlogCard } from '@/components/cards';
+import { ServiceCards } from '@/components/cards';
+import { HomepageCards } from '@/components/homepage-cards';
 import { generalFaqs } from '@/content/services';
-import { getCaseStudies, getPosts } from '@/lib/published-content';
+import { caseStudies, posts } from '@/content/editorial';
 import { pageMetadata } from '@/lib/site';
 export const metadata = pageMetadata(
   'Web, Creative & Digital Growth Agency',
   'Techie Growera brings website development, SEO, design, video, social media and performance marketing together to grow your digital presence.',
   '/',
 );
-export default async function Home() {
-  const [caseStudies, posts] = await Promise.all([getCaseStudies(), getPosts()]);
+// Fail the build if a future change reintroduces request-time server dependencies.
+export const dynamic = 'error';
+export default function Home() {
+  const cms = process.env.CMS_ENABLED === 'true';
   return (
     <>
       <section className="hero">
@@ -30,8 +33,9 @@ export default async function Home() {
               <span className="headline-dot">↗</span>
             </h1>
             <p>
-              We build websites, shape brands and connect you with the right people. Technology,
-              creativity and digital marketing — working together.
+              Techie Growera is a web development, design and digital marketing agency founded by
+              Parth Kadiya and Kush Kadia. We build websites, shape brands and help businesses grow
+              their digital presence.
             </p>
             <div className="button-row">
               <ButtonLink href="/contact">Start a project</ButtonLink>
@@ -257,18 +261,14 @@ export default async function Home() {
           <SectionHeading
             label="A LOOK AT THE POSSIBILITIES"
             title="Thoughtful work.\nPurposeful outcomes."
-            text="Explore our concept projects — a window into our approach, clearly presented as illustrative work."
+            text="Explore our approach through project previews. Illustrative concepts are clearly labelled."
           />
           <TextLink href="/portfolio">View our work</TextLink>
         </div>
-        <div className="work-grid">
-          {caseStudies.slice(0, 2).map((s) => (
-            <WorkCard key={s.slug} study={s} />
-          ))}
-        </div>
+        <HomepageCards kind="case-studies" initialItems={cms ? null : caseStudies.slice(0, 2)} />
         <div className="case-link">
           <p>Curious about the thinking behind the work?</p>
-          <TextLink href="/case-studies">Explore the concept case studies</TextLink>
+          <TextLink href="/case-studies">Explore project case studies</TextLink>
         </div>
       </section>
       <section className="industries">
@@ -298,11 +298,7 @@ export default async function Home() {
           <SectionHeading label="IDEAS & INSIGHTS" title="A little clarity goes a long way." />
           <TextLink href="/blog">Read all insights</TextLink>
         </div>
-        <div className="blog-grid">
-          {posts.slice(0, 3).map((p, i) => (
-            <BlogCard key={p.slug} post={p} index={i} />
-          ))}
-        </div>
+        <HomepageCards kind="blog" initialItems={cms ? null : posts.slice(0, 3)} />
       </section>
       <section className="section container faq-section">
         <SectionHeading label="GOOD QUESTIONS" title="Let’s clear a few things up." />

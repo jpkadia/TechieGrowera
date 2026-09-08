@@ -39,7 +39,7 @@ export function pageMetadata(
 ): Metadata {
   const image = path === '/' ? '/opengraph-image' : `${path}/opengraph-image`;
   return {
-    title: path === '/' ? `${site.name} | ${title}` : title,
+    title: path === '/' ? { absolute: `${site.name} | ${title}` } : title,
     description,
     alternates: { canonical: absolute(path) },
     openGraph: {

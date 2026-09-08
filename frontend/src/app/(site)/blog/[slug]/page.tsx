@@ -5,6 +5,7 @@ import { getService } from '@/content/services';
 import { Breadcrumbs, CTA, JsonLd, SectionHeading, TextLink } from '@/components/ui';
 import { BlogCard } from '@/components/cards';
 import { absolute, pageMetadata } from '@/lib/site';
+import { EditorialParagraph } from '@/components/editorial-paragraph';
 export const dynamicParams = true;
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -35,7 +36,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
           <Breadcrumbs
             items={[
               { label: 'Blog', href: '/blog' },
-              { label: p.category, href: `/blog/${p.slug}` },
+              { label: p.title, href: `/blog/${p.slug}` },
             ]}
           />
           <span className="eyebrow">{p.category.toUpperCase()}</span>
@@ -54,7 +55,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
             <section key={section.heading} id={`section-${i}`}>
               <h2>{section.heading}</h2>
               {section.paragraphs.map((text) => (
-                <p key={text}>{text}</p>
+                <EditorialParagraph key={text} text={text} />
               ))}
             </section>
           ))}
@@ -84,6 +85,8 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
         <div className="blog-grid" style={{ marginTop: 35 }}>
           {posts
             .filter((post) => post.slug !== slug)
+            .sort((a, b) => Number(b.service === p.service) - Number(a.service === p.service))
+            .slice(0, 3)
             .map((post, i) => (
               <BlogCard post={post} index={i} key={post.slug} />
             ))}
@@ -99,7 +102,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
           image: absolute(p.ogImage),
           datePublished: `${p.publishedAt}T00:00:00+05:30`,
           dateModified: `${p.updatedAt}T00:00:00+05:30`,
-          author: { '@type': 'Organization', name: p.author, url: absolute('/about') },
+          author: { '@type': p.authorType || 'Organization', name: p.author, url: absolute('/about') },
           publisher: { '@id': absolute('/#organization') },
           mainEntityOfPage: absolute(p.canonicalPath),
           articleSection: p.category,

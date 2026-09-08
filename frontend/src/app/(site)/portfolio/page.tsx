@@ -3,8 +3,8 @@ import { WorkCard } from '@/components/cards';
 import { getCaseStudies } from '@/lib/published-content';
 import { pageMetadata } from '@/lib/site';
 export const metadata = pageMetadata(
-  'Portfolio & Concept Work',
-  'Explore clearly labelled concept projects demonstrating Techie Growera’s approach to website design, brand identity and creative systems.',
+  'Portfolio & Creative Work',
+  'Explore Techie Growera’s website and creative project previews. Illustrative concepts are clearly labelled alongside project details.',
   '/portfolio',
 );
 export default async function Portfolio() {
@@ -16,13 +16,13 @@ export default async function Portfolio() {
           <Breadcrumbs items={[{ label: 'Portfolio', href: '/portfolio' }]} />
           <span className="eyebrow">IDEAS MADE TANGIBLE</span>
           <h1>
-            Our approach.
-            <br />
-            In a different light.
+            Website &amp; creative
+            <br />portfolio.
           </h1>
           <p className="intro">
-            These concept projects explore how a clear strategy can become a distinctive digital
-            experience. They are illustrative work, not commissioned client projects.
+            Browse our website and creative project previews, then open a case study to understand
+            the brief and approach. Projects labelled as concepts are illustrative work, not
+            commissioned client engagements.
           </p>
         </div>
       </section>

@@ -14,8 +14,8 @@ export default function Services() {
           <Breadcrumbs items={[{ label: 'Services', href: '/services' }]} />
           <span className="eyebrow">WEB · CREATIVE · GROWTH</span>
           <h1>
-            The right expertise.
-            <br />A connected approach.
+            Web, creative &amp; digital
+            <br />marketing services.
           </h1>
           <p className="intro">
             Start with the service your business needs today. Build a stronger digital presence as

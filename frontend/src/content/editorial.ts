@@ -4,6 +4,7 @@ export type BlogPost = {
   title: string;
   excerpt: string;
   author: string;
+  authorType?: 'Organization' | 'Person';
   category: string;
   tags: string[];
   featuredImage: string;

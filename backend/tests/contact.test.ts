@@ -165,3 +165,43 @@ test('frontend proxy enforces origin and forwards a valid enquiry through to Mon
     await new Promise<void>((resolve) => server.close(() => resolve()));
   }
 });
+
+test('frontend proxy reports upstream errors, invalid responses and timeout without false success', async () => {
+  const { NextRequest } = await import('next/server');
+  const { POST } = await import('../../frontend/src/app/api/contact/route.ts');
+  const realFetch = globalThis.fetch;
+  const previousApi = process.env.API_BASE_URL;
+  process.env.API_BASE_URL = 'http://127.0.0.1:1';
+  process.env.NEXT_PUBLIC_SITE_URL = 'http://localhost:3000';
+  const count = await ContactLead.countDocuments();
+  try {
+    for (const mode of ['unavailable', 'invalid-json', 'timeout', 'network']) {
+      let calls = 0;
+      globalThis.fetch = async (input, init) => {
+        calls++;
+        assert.equal(String(input), 'http://127.0.0.1:1/api/contact');
+        assert.equal(init?.method, 'POST');
+        assert.ok(init?.signal, 'upstream timeout is bounded');
+        assert.ok(String(init?.body).includes('test@example.com'));
+        if (mode === 'timeout') throw new DOMException('Timed out', 'TimeoutError');
+        if (mode === 'network') throw new TypeError('Network unavailable');
+        if (mode === 'invalid-json') return new Response('upstream error', { status: 502 });
+        return Response.json({ ok: false, message: 'Temporarily unavailable' }, { status: 503 });
+      };
+      const response = await POST(
+        new NextRequest('http://localhost:3000/api/contact', {
+          method: 'POST',
+          headers: { origin: 'http://localhost:3000', 'content-type': 'application/json' },
+          body: JSON.stringify(valid()),
+        }),
+      );
+      assert.equal(calls, 1, 'no automatic retry of a possibly saved enquiry');
+      assert.equal(response.status, 503);
+      assert.equal((await response.json()).ok, false);
+    }
+    assert.equal(await ContactLead.countDocuments(), count);
+  } finally {
+    globalThis.fetch = realFetch;
+    process.env.API_BASE_URL = previousApi;
+  }
+});

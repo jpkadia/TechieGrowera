@@ -13,8 +13,8 @@ export default function About() {
           <Breadcrumbs items={[{ label: 'About', href: '/about' }]} />
           <span className="eyebrow">THE THINKING BEHIND THE WORK</span>
           <h1>
-            Technology. Creativity.
-            <br />A shared direction.
+            About
+            <br />Techie Growera.
           </h1>
           <p className="intro">
             Techie Growera helps businesses build and grow their digital presence. We connect the

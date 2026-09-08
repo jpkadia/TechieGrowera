@@ -5,7 +5,13 @@ import { absolute, site } from '@/lib/site';
 export const dynamic = 'force-dynamic';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!site.indexable) return [];
-  const [posts, caseStudies] = await Promise.all([getPosts(), getCaseStudies()]);
+  // Preserve the independently available pages even during a CMS outage.
+  // Never substitute seed records: they may have been archived by the editor.
+  const [postResult, caseResult] = await Promise.allSettled([getPosts(), getCaseStudies()]);
+  const posts = postResult.status === 'fulfilled' ? postResult.value : [];
+  const caseStudies = caseResult.status === 'fulfilled' ? caseResult.value : [];
+  if (postResult.status === 'rejected' || caseResult.status === 'rejected')
+    console.warn('Sitemap: published content temporarily unavailable; returning available URLs.');
   return [
     ...[
       '/',

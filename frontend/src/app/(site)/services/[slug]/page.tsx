@@ -110,6 +110,13 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         </div>
       </section>
       <CTA />
+      <section className="section container">
+        <h2>Practical guides for your next step</h2>
+        <p>Explore published articles related to {s.name.toLowerCase()}.</p>
+        <Link className="text-link" prefetch={false} href={`/blog?service=${s.slug}`}>
+          Browse related guides ↗
+        </Link>
+      </section>
       <JsonLd
         data={{
           '@context': 'https://schema.org',

@@ -11,7 +11,10 @@ const slug = z
   .min(3)
   .max(100)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
-  .refine(value => !['opengraph-image','twitter-image','feed','sitemap','robots'].includes(value), 'This slug is reserved by the website.');
+  .refine(
+    (value) => !['opengraph-image', 'twitter-image', 'feed', 'sitemap', 'robots'].includes(value),
+    'This slug is reserved by the website.',
+  );
 const list = z.array(text(100, 1)).max(20);
 const path = z
   .string()
@@ -23,6 +26,7 @@ export const postDraft = z
     slug,
     excerpt: text(350, 20),
     author: text(100, 2),
+    authorType: z.enum(['Organization', 'Person']).optional(),
     category: text(80, 2),
     tags: list,
     featuredImage: path.default('/brand/mark.svg'),

@@ -118,12 +118,10 @@ adminRouter.patch('/leads/:id', async (req, res) => {
     );
     updated = true;
   });
-  return res
-    .status(updated ? 200 : 409)
-    .json({
-      ok: updated,
-      message: updated ? 'Enquiry updated.' : 'This enquiry changed. Refresh and try again.',
-    });
+  return res.status(updated ? 200 : 409).json({
+    ok: updated,
+    message: updated ? 'Enquiry updated.' : 'This enquiry changed. Refresh and try again.',
+  });
 });
 adminRouter.get('/logs', async (req, res) => {
   const q = pagination(req.query);
@@ -171,12 +169,10 @@ adminRouter.get('/content/:kind/:id', async (req, res) => {
 adminRouter.post('/content/:kind', async (req, res) => {
   const body = saveBody(String(req.params.kind)).safeParse(req.body);
   if (!body.success)
-    return res
-      .status(422)
-      .json({
-        ok: false,
-        message: body.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-      });
+    return res.status(422).json({
+      ok: false,
+      message: body.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+    });
   const Model = req.params.kind === 'blog' ? BlogPost : CaseStudy;
   try {
     let id = '';
@@ -218,14 +214,12 @@ adminRouter.post('/content/:kind', async (req, res) => {
 adminRouter.put('/content/:kind/:id', async (req, res) => {
   const body = saveBody(String(req.params.kind)).safeParse(req.body);
   if (!body.success || !body.data.revision || !mongoose.isValidObjectId(req.params.id))
-    return res
-      .status(422)
-      .json({
-        ok: false,
-        message: body.success
-          ? 'Invalid revision.'
-          : body.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-      });
+    return res.status(422).json({
+      ok: false,
+      message: body.success
+        ? 'Invalid revision.'
+        : body.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+    });
   const Model = req.params.kind === 'blog' ? BlogPost : CaseStudy;
   try {
     let result: Record<string, unknown> | null = null;
@@ -256,15 +250,13 @@ adminRouter.put('/content/:kind/:id', async (req, res) => {
       );
       result = current.toObject();
     });
-    return res
-      .status(result ? 200 : 409)
-      .json({
-        ok: !!result,
-        item: result,
-        message: result
-          ? 'Draft saved. Live content is unchanged.'
-          : 'Another edit was saved. Reload before editing.',
-      });
+    return res.status(result ? 200 : 409).json({
+      ok: !!result,
+      item: result,
+      message: result
+        ? 'Draft saved. Live content is unchanged.'
+        : 'Another edit was saved. Reload before editing.',
+    });
   } catch (error) {
     if ((error as { code?: number }).code === 11000)
       return res.status(409).json({ ok: false, message: 'That URL slug is already in use.' });
@@ -291,9 +283,14 @@ adminRouter.post('/content/:kind/:id/:action', async (req, res) => {
         });
       const date = new Date().toISOString().slice(0, 10);
       const base = `/${req.params.kind}/${item.slug}`;
+      const unchanged =
+        item.published &&
+        Object.entries(validated.data.draft).every(
+          ([key, value]) => JSON.stringify(value) === JSON.stringify(item.published[key]),
+        );
       item.published = {
         ...validated.data.draft,
-        updatedAt: date,
+        updatedAt: unchanged ? item.published.updatedAt : date,
         ...(req.params.kind === 'blog'
           ? {
               publishedAt: item.published?.publishedAt || date,
@@ -322,10 +319,8 @@ adminRouter.post('/content/:kind/:id/:action', async (req, res) => {
     );
     updated = true;
   });
-  return res
-    .status(updated ? 200 : 409)
-    .json({
-      ok: updated,
-      message: updated ? 'Content status updated.' : 'Content changed. Reload and try again.',
-    });
+  return res.status(updated ? 200 : 409).json({
+    ok: updated,
+    message: updated ? 'Content status updated.' : 'Content changed. Reload and try again.',
+  });
 });

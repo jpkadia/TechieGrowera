@@ -9,6 +9,7 @@ async function readPublished<T>(kind: string, fallback: T[]): Promise<T[]> {
   const response = await fetch(new URL(`/api/published/${kind}`, base), {
     headers: { 'x-api-proxy-secret': secret },
     cache: 'no-store',
+    redirect: 'error',
     signal: AbortSignal.timeout(10000),
   });
   if (!response.ok) throw new Error('Published content is temporarily unavailable.');

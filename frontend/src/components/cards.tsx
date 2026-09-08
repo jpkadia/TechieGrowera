@@ -51,7 +51,7 @@ export function WorkCard({ study }: { study: CaseStudy }) {
     <article className="work-card">
       <Link
         href={`/case-studies/${study.slug}`}
-        aria-label={`View ${study.client} concept`}
+        aria-label={`View ${study.client} ${study.demo ? 'concept' : 'case study'}`}
         className={`work-visual ${study.theme}`}
       >
         <span className="concept-label">

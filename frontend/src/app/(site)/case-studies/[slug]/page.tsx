@@ -43,9 +43,9 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
         <article className="prose">
           <h2>The brief</h2>
           <p>{s.problem}</p>
-          <h2>The proposed solution</h2>
+          <h2>{s.demo ? 'The proposed solution' : 'The solution'}</h2>
           <p>{s.solution}</p>
-          <h2>Deliverables and limitations</h2>
+          <h2>{s.demo ? 'Deliverables and limitations' : 'Deliverables and outcomes'}</h2>
           <p>{s.results}</p>
         </article>
         <aside className="content-panel">
