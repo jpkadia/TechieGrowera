@@ -21,7 +21,10 @@ export const metadata: Metadata = {
       process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ||
       'M1QXBY-KxnF-x6722-80svgefZMljThY0u42-YqL7vg',
   },
-  icons: { icon: '/brand/mark.svg', apple: '/brand/logo.png' },
+  icons: {
+    icon: { url: '/brand/favicon.svg', type: 'image/svg+xml', sizes: 'any' },
+    apple: '/brand/logo.png',
+  },
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
