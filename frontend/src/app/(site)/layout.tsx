@@ -40,7 +40,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             '@type': 'WebSite',
             '@id': absolute('/#website'),
             name: site.name,
-            alternateName: 'techiegrowera',
+            alternateName: ['techiegrowera', new URL(site.url).hostname],
             url: site.url,
             publisher: { '@id': absolute('/#organization') },
           },
