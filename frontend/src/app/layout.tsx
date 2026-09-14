@@ -10,6 +10,7 @@ const manrope = localFont({
 });
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
+  applicationName: site.name,
   title: {
     default: 'Techie Growera | Web, Creative & Digital Growth Agency',
     template: '%s | Techie Growera',
