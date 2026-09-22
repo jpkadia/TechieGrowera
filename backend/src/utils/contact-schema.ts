@@ -19,9 +19,9 @@ export const contactSchema = z
     phone: z
       .string()
       .trim()
+      .min(1, 'Please enter your phone number.')
       .max(25)
-      .regex(/^[+\d\s().-]*$/)
-      .default(''),
+      .regex(/^[+\d\s().-]+$/, 'Please enter a valid phone number.'),
     service: z.enum([
       'web-development',
       'seo',
@@ -32,7 +32,9 @@ export const contactSchema = z
       'meta-ads',
       'not-sure',
     ]),
-    budget: z.enum(['under-25k', '25k-50k', '50k-100k', '100k-plus', 'discuss']),
+    budget: z
+      .enum(['under-25k', '25k-50k', '50k-100k', '100k-plus', 'discuss'])
+      .default('discuss'),
     description: text(20, 5000),
     consent: z.literal(true),
     website: z.string().max(300).default(''),

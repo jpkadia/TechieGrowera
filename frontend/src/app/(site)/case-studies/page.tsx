@@ -5,8 +5,8 @@ import { pageMetadata } from '@/lib/site';
 export async function generateMetadata() {
   const caseStudies = await getCaseStudies();
   return pageMetadata(
-    'Case Studies & Project Thinking',
-    'Explore the brief, approach and deliverables behind Techie Growera projects. Concept work is clearly distinguished from verified client engagements.',
+    'Case Studies & Client Results',
+    'Explore the brief, engineering approach and deliverables behind Techie Growera client projects.',
     '/case-studies',
     caseStudies.every((study) => study.demo),
   );
@@ -24,9 +24,8 @@ export default async function CaseStudies() {
             <br />Approach &amp; outcomes.
           </h1>
           <p className="intro">
-            Go beyond the preview: understand each project’s problem, approach and deliverables.
-            Concepts are labelled; client outcomes are published only with verified information
-            and permission.
+            Go beyond the preview: understand each project’s core problem, architectural approach, and delivered results.
+            Explore our real-world client engagements across web engineering, healthtech, and growth.
           </p>
           {caseStudies.every((study) => study.demo) && (
             <p className="demo-notice">

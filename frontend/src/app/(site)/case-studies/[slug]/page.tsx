@@ -54,6 +54,8 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             <strong>Brand:</strong> {s.client} {s.demo ? '(demo)' : ''}
             <br />
             <strong>Industry:</strong> {s.industry}
+            <br />
+            <strong>Pricing:</strong> Custom scoped upon consultation
           </p>
           <CheckList items={s.technologies} />
           <div className="related-links">

@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       body,
       cache: 'no-store',
       redirect: 'error',
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.timeout(60000),
     });
     const data = await upstream.json();
     const headers: Record<string, string> = { 'Cache-Control': 'no-store' };

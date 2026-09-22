@@ -23,8 +23,8 @@ export default function Privacy() {
         </p>
         <h2>Information you choose to provide</h2>
         <p>
-          The project enquiry form requests your name, business name, email, optional phone number,
-          interested service, budget range and project description. We also record your consent and
+          The project enquiry form requests your name, business name, email, phone number,
+          interested service and project description. We also record your consent and
           the time of submission.
         </p>
         <h2>Why information is used</h2>

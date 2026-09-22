@@ -48,7 +48,7 @@ export function socialImage(title: string, label = 'WEB · CREATIVE · GROWTH') 
           color: '#b8d5df',
         }}
       >
-        <span>Your brand. Engineered to grow.</span>
+        <span>Scaling digital presence with intent.</span>
         <span style={{ color: '#7ce2db' }}>↗</span>
       </div>
     </div>,

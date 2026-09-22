@@ -118,15 +118,57 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         </Link>
       </section>
       <JsonLd
-        data={{
-          '@context': 'https://schema.org',
-          '@type': 'Service',
-          name: s.name,
-          description: s.description,
-          serviceType: s.name,
-          url: absolute(`/services/${s.slug}`),
-          provider: { '@id': absolute('/#organization') },
-        }}
+        data={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Service',
+            name: s.name,
+            description: s.description,
+            serviceType: s.name,
+            url: absolute(`/services/${s.slug}`),
+            provider: { '@id': absolute('/#organization') },
+          },
+          ...(s.faqs && s.faqs.length > 0
+            ? [
+                {
+                  '@context': 'https://schema.org',
+                  '@type': 'FAQPage',
+                  mainEntity: s.faqs.map((faq) => ({
+                    '@type': 'Question',
+                    name: faq.question,
+                    acceptedAnswer: {
+                      '@type': 'Answer',
+                      text: faq.answer,
+                    },
+                  })),
+                },
+              ]
+            : []),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: absolute('/'),
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Services',
+                item: absolute('/services'),
+              },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: s.name,
+                item: absolute(`/services/${s.slug}`),
+              },
+            ],
+          },
+        ]}
       />
     </>
   );

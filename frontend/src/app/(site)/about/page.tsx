@@ -1,8 +1,9 @@
-import { Breadcrumbs, ButtonLink, CTA, SectionHeading, CheckList } from '@/components/ui';
-import { pageMetadata, site } from '@/lib/site';
+import Image from 'next/image';
+import { Breadcrumbs, ButtonLink, CTA, SectionHeading, CheckList, JsonLd } from '@/components/ui';
+import { absolute, pageMetadata, site } from '@/lib/site';
 export const metadata = pageMetadata(
   'About Our Digital Agency',
-  'Meet the thinking behind Techie Growera: a connected approach to web development, creative services and sustainable digital growth.',
+  'Meet the thinking behind Techie Growera: scaling digital presence with intent through web development, creative services and sustainable digital growth.',
   '/about',
 );
 export default function About() {
@@ -11,13 +12,13 @@ export default function About() {
       <section className="page-hero">
         <div className="container">
           <Breadcrumbs items={[{ label: 'About', href: '/about' }]} />
-          <span className="eyebrow">THE THINKING BEHIND THE WORK</span>
+          <span className="eyebrow">SCALING DIGITAL PRESENCE WITH INTENT</span>
           <h1>
             About
             <br />Techie Growera.
           </h1>
           <p className="intro">
-            Techie Growera helps businesses build and grow their digital presence. We connect the
+            Techie Growera helps businesses scale their digital presence with intent. We connect the
             craft of making things with the clarity of knowing why they matter.
           </p>
         </div>
@@ -44,7 +45,7 @@ export default function About() {
           />
         </div>
       </section>
-      <section className="why-section section">
+      <section className="why-section section about-principles">
         <div className="container">
           <SectionHeading label="HOW WE THINK" title="Principles we bring to every project." />
           <div className="about-values">
@@ -70,6 +71,24 @@ export default function About() {
           </div>
         </div>
       </section>
+      <section className="about-studio-fullwidth">
+        <div className="about-studio-fullwidth-media">
+          <Image
+            src="/images/transparent-agency-studio.webp"
+            alt="Techie Growera founders collaborating in modern tech studio"
+            width={1672}
+            height={941}
+            sizes="100vw"
+            className="about-studio-fullwidth-img"
+          />
+        </div>
+        <div className="about-studio-fullwidth-bar">
+          <div className="container about-studio-caption-content">
+            <span className="about-studio-tag">STUDIO &amp; COLLABORATION</span>
+            <p>Where intentional strategy, modern engineering, and purposeful design intersect.</p>
+          </div>
+        </div>
+      </section>
       <section className="section container split">
         <SectionHeading label="MEET THE FOUNDERS" title="The people behind\nTechie Growera." />
         <div>
@@ -82,22 +101,125 @@ export default function About() {
             about your business, your ideas and the digital presence you want to build.
           </p>
           <div className="founder-grid">
-            {site.founders.map(({ name, role }) => (
-              <article key={name} className="founder-card">
-                <span aria-hidden="true" className="founder-initials">
-                  {name
-                    .split(' ')
-                    .map((part) => part[0])
-                    .join('')}
-                </span>
-                <h3>{name}</h3>
-                <p>{role}</p>
+            {site.founders.map((founder) => (
+              <article key={founder.name} className="founder-card">
+                {founder.image ? (
+                  <Image
+                    src={founder.image}
+                    alt={`${founder.name} — Co-Founder & ${founder.role} at Techie Growera`}
+                    width={112}
+                    height={112}
+                    className="founder-avatar"
+                  />
+                ) : (
+                  <span aria-hidden="true" className="founder-initials">
+                    {founder.name
+                      .split(' ')
+                      .map((part) => part[0])
+                      .join('')}
+                  </span>
+                )}
+                <h3>{founder.name}</h3>
+                <p>{founder.role}</p>
+                {(founder.portfolio || founder.linkedin) && (
+                  <div className="founder-links">
+                    {founder.portfolio && (
+                      <a
+                        href={founder.portfolio}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="founder-link"
+                      >
+                        Portfolio ↗
+                        <span className="sr-only"> for {founder.name} (opens in new tab)</span>
+                      </a>
+                    )}
+                    {founder.linkedin && (
+                      <a
+                        href={founder.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="founder-link"
+                      >
+                        LinkedIn ↗
+                        <span className="sr-only"> for {founder.name} (opens in new tab)</span>
+                      </a>
+                    )}
+                  </div>
+                )}
               </article>
             ))}
           </div>
         </div>
       </section>
       <CTA />
+      <JsonLd
+        data={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'AboutPage',
+            '@id': absolute('/about#webpage'),
+            url: absolute('/about'),
+            name: 'About Techie Growera | Digital Agency Founders & Vision',
+            description:
+              'Meet Parth Kadiya and Kush Kadia, co-founders of Techie Growera — scaling digital presence with intent through web engineering, creative design, and digital marketing.',
+            isPartOf: { '@id': absolute('/#website') },
+            mainEntity: site.founders.map((f) => ({
+              '@type': 'Person',
+              '@id': absolute(`/about#${f.name.toLowerCase().replace(/\s+/g, '-')}`),
+              name: f.name,
+              jobTitle: f.role,
+              worksFor: { '@id': absolute('/#organization') },
+              ...(f.image
+                ? {
+                    image: {
+                      '@type': 'ImageObject',
+                      url: absolute(f.image),
+                      caption: `${f.name} — Co-Founder & ${f.role} at Techie Growera`,
+                    },
+                  }
+                : {}),
+              ...(f.portfolio ? { url: f.portfolio } : {}),
+              ...(f.linkedin ? { sameAs: [f.linkedin] } : {}),
+              knowsAbout:
+                f.name === 'Parth Kadiya'
+                  ? [
+                      'Website Development',
+                      'Next.js',
+                      'React',
+                      'Frontend Engineering',
+                      'Technical SEO',
+                      'Software Architecture',
+                    ]
+                  : [
+                      'Digital Marketing',
+                      'Meta Ads',
+                      'Performance Marketing',
+                      'Social Media Management',
+                      'Brand Strategy',
+                    ],
+            })),
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: absolute('/'),
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'About',
+                item: absolute('/about'),
+              },
+            ],
+          },
+        ]}
+      />
     </>
   );
 }

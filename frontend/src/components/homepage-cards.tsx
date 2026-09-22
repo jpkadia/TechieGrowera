@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { BlogCard, WorkCard } from '@/components/cards';
-import type { BlogPost, CaseStudy } from '@/content/editorial';
+import { SkeletonCard } from '@/components/skeleton-card';
+import { caseStudies as fallbackStudies, posts as fallbackPosts, type BlogPost, type CaseStudy } from '@/content/editorial';
 
 type Props =
   | { kind: 'blog'; initialItems: BlogPost[] | null }
@@ -13,11 +14,14 @@ type Props =
 export function HomepageCards({ kind, initialItems }: Props) {
   const [items, setItems] = useState<(BlogPost | CaseStudy)[] | null>(initialItems);
   const [failed, setFailed] = useState(false);
+
   useEffect(() => {
     if (initialItems !== null) return;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 15000);
+    // Relaxed 45s timer to allow Render container to finish booting
+    const timer = setTimeout(() => controller.abort(), 45000);
     let active = true;
+
     async function load() {
       try {
         const response = await fetch(`/api/highlights/${kind}`, {
@@ -29,11 +33,13 @@ export function HomepageCards({ kind, initialItems }: Props) {
         if (!data.ok || !Array.isArray(data.items)) throw new Error('Invalid highlights');
         if (active) setItems(data.items);
       } catch {
+        // If upstream backend is sleeping or unavailable, switch to fallback
         if (active) setFailed(true);
       } finally {
         clearTimeout(timer);
       }
     }
+
     void load();
     return () => {
       active = false;
@@ -42,25 +48,43 @@ export function HomepageCards({ kind, initialItems }: Props) {
     };
   }, [kind, initialItems]);
 
-  if (items === null)
-    return (
-      <p role="status" style={{ minHeight: 64 }}>
-        {failed
-          ? 'These previews are temporarily unavailable. Please try again later.'
-          : 'Loading the latest previews…'}
-      </p>
+  // If failed, seamlessly fall back to verified editorial records so user is never stuck
+  const activeItems =
+    items ??
+    (failed
+      ? kind === 'case-studies'
+        ? fallbackStudies.slice(0, 2)
+        : fallbackPosts.slice(0, 3)
+      : null);
+
+  // While waiting for backend response, show YouTube / Instagram style shimmer wave
+  if (activeItems === null) {
+    return kind === 'blog' ? (
+      <div className="blog-grid" role="status" aria-label="Loading latest article previews">
+        <SkeletonCard type="blog" />
+        <SkeletonCard type="blog" />
+        <SkeletonCard type="blog" />
+      </div>
+    ) : (
+      <div className="work-grid" role="status" aria-label="Loading latest project previews">
+        <SkeletonCard type="work" />
+        <SkeletonCard type="work" />
+      </div>
     );
-  if (!items.length)
+  }
+
+  if (!activeItems.length)
     return <p>New {kind === 'blog' ? 'articles' : 'projects'} will appear here.</p>;
+
   return kind === 'blog' ? (
     <div className="blog-grid">
-      {(items as BlogPost[]).map((post, index) => (
+      {(activeItems as BlogPost[]).map((post, index) => (
         <BlogCard key={post.slug} post={post} index={index} />
       ))}
     </div>
   ) : (
     <div className="work-grid">
-      {(items as CaseStudy[]).map((study) => (
+      {(activeItems as CaseStudy[]).map((study) => (
         <WorkCard key={study.slug} study={study} />
       ))}
     </div>

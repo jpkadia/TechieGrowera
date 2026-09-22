@@ -7,14 +7,13 @@ import { generalFaqs } from '@/content/services';
 import { caseStudies, posts } from '@/content/editorial';
 import { pageMetadata } from '@/lib/site';
 export const metadata = pageMetadata(
-  'Web, Creative & Digital Growth Agency',
-  'Techie Growera brings website development, SEO, design, video, social media and performance marketing together to grow your digital presence.',
+  'Web Development, SEO & Digital Marketing Agency',
+  'Techie Growera — Web Development, SEO & Digital Marketing Agency. We engineer high-performance business websites, technical SEO, creative design, and Meta Ads for measurable brand growth.',
   '/',
 );
 // Fail the build if a future change reintroduces request-time server dependencies.
 export const dynamic = 'error';
 export default function Home() {
-  const cms = process.env.CMS_ENABLED === 'true';
   return (
     <>
       <section className="hero">
@@ -22,7 +21,7 @@ export default function Home() {
           <div className="hero-copy">
             <span className="eyebrow">
               <span />
-              WEB. CREATIVE. GROWTH.
+              SCALING DIGITAL PRESENCE WITH INTENT
             </span>
             <h1>
               Your brand.
@@ -34,8 +33,8 @@ export default function Home() {
             </h1>
             <p>
               Techie Growera is a web development, design and digital marketing agency founded by
-              Parth Kadiya and Kush Kadia. We build websites, shape brands and help businesses grow
-              their digital presence.
+              Parth Kadiya and Kush Kadia. We build websites, shape brands and scale digital
+              presence with intent.
             </p>
             <div className="button-row">
               <ButtonLink href="/contact">Start a project</ButtonLink>
@@ -44,7 +43,7 @@ export default function Home() {
               </ButtonLink>
             </div>
             <div className="hero-note">
-              <span className="note-line" />A clear strategy. Thoughtful execution. Lasting value.
+              <span className="note-line" />Scaling digital presence with intent. Thoughtful execution. Lasting value.
             </div>
           </div>
           <div className="hero-art" aria-label="Techie Growera: web, creative and growth">
@@ -169,6 +168,15 @@ export default function Home() {
               Responsive websites and landing pages that make your business clear, your content
               discoverable and the next step effortless.
             </p>
+            <div className="feature-media">
+              <Image
+                src="/images/transparent-digital-foundation.webp"
+                alt="High-performance responsive website and modern web application showcase"
+                width={836}
+                height={470}
+                className="feature-media-img"
+              />
+            </div>
             <TextLink href="/services/web-development">Explore website development</TextLink>
             <div className="feature-tags">
               <span>Responsive by design</span>
@@ -191,47 +199,61 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <section className="container growth-section">
-        <SectionHeading
-          label="MAKE THE RIGHT CONNECTIONS"
-          title="Be found. Be remembered.\nGive people a reason to act."
-        />
-        <div className="growth-grid">
-          {[
-            [
-              'seo',
-              'Search with substance.',
-              'Technical SEO and useful content that help the right people discover what you do.',
-              'Explore SEO',
-            ],
-            [
-              'social-media-management',
-              'A presence with purpose.',
-              'A considered content plan and consistent creative that keep your brand in the conversation.',
-              'Explore social media',
-            ],
-            [
-              'meta-ads',
-              'Performance with perspective.',
-              'Thoughtful campaigns, creative testing and transparent reporting built around your goals.',
-              'Explore Meta Ads',
-            ],
-          ].map(([slug, title, description, link], i) => (
-            <article key={slug}>
-              <span className="growth-icon">
-                {i === 0 ? (
-                  <Search aria-hidden="true" />
-                ) : i === 1 ? (
-                  <Sparkles aria-hidden="true" />
-                ) : (
-                  <ArrowUpRight aria-hidden="true" />
-                )}
-              </span>
-              <h3>{title}</h3>
-              <p>{description}</p>
-              <TextLink href={`/services/${slug}`}>{link}</TextLink>
-            </article>
-          ))}
+      <section className="growth-section">
+        <div className="container">
+          <SectionHeading
+            label="MAKE THE RIGHT CONNECTIONS"
+            title="Be found. Be remembered.\nGive people a reason to act."
+          />
+        </div>
+        <div className="growth-fullwidth-banner">
+          <Image
+            src="/images/transparent-growth-ecosystem.webp"
+            alt="Integrated digital growth ecosystem connecting SEO, social media, performance marketing and analytics"
+            width={2159}
+            height={728}
+            sizes="100vw"
+            className="growth-fullwidth-img"
+          />
+        </div>
+        <div className="container">
+          <div className="growth-grid">
+            {[
+              [
+                'seo',
+                'Search with substance.',
+                'Technical SEO and useful content that help the right people discover what you do.',
+                'Explore SEO',
+              ],
+              [
+                'social-media-management',
+                'A presence with purpose.',
+                'A considered content plan and consistent creative that keep your brand in the conversation.',
+                'Explore social media',
+              ],
+              [
+                'meta-ads',
+                'Performance with perspective.',
+                'Thoughtful campaigns, creative testing and transparent reporting built around your goals.',
+                'Explore Meta Ads',
+              ],
+            ].map(([slug, title, description, link], i) => (
+              <article key={slug}>
+                <span className="growth-icon">
+                  {i === 0 ? (
+                    <Search aria-hidden="true" />
+                  ) : i === 1 ? (
+                    <Sparkles aria-hidden="true" />
+                  ) : (
+                    <ArrowUpRight aria-hidden="true" />
+                  )}
+                </span>
+                <h3>{title}</h3>
+                <p>{description}</p>
+                <TextLink href={`/services/${slug}`}>{link}</TextLink>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
       <section className="section process-section">
@@ -261,11 +283,11 @@ export default function Home() {
           <SectionHeading
             label="A LOOK AT THE POSSIBILITIES"
             title="Thoughtful work.\nPurposeful outcomes."
-            text="Explore our approach through project previews. Illustrative concepts are clearly labelled."
+            text="Explore our engineering approach and measurable results across live client projects."
           />
           <TextLink href="/portfolio">View our work</TextLink>
         </div>
-        <HomepageCards kind="case-studies" initialItems={cms ? null : caseStudies.slice(0, 2)} />
+        <HomepageCards kind="case-studies" initialItems={caseStudies.slice(0, 2)} />
         <div className="case-link">
           <p>Curious about the thinking behind the work?</p>
           <TextLink href="/case-studies">Explore project case studies</TextLink>
@@ -298,7 +320,7 @@ export default function Home() {
           <SectionHeading label="IDEAS & INSIGHTS" title="A little clarity goes a long way." />
           <TextLink href="/blog">Read all insights</TextLink>
         </div>
-        <HomepageCards kind="blog" initialItems={cms ? null : posts.slice(0, 3)} />
+        <HomepageCards kind="blog" initialItems={posts.slice(0, 3)} />
       </section>
       <section className="section container faq-section">
         <SectionHeading label="GOOD QUESTIONS" title="Let’s clear a few things up." />

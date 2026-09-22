@@ -8,7 +8,6 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/*.test.ts",
     "db:indexes": "tsx src/scripts/indexes.ts"
   },
   "dependencies": {
@@ -25,9 +24,6 @@
     "tsx": "^4.20.0",
     "@types/node": "^22.0.0",
     "@types/express": "^5.0.0",
-    "@types/cors": "^2.8.19",
-    "supertest": "^7.1.0",
-    "@types/supertest": "^6.0.0",
-    "mongodb-memory-server": "^10.2.0"
+    "@types/cors": "^2.8.19"
   }
 }

@@ -7,6 +7,7 @@ import { contactRouter } from './routes/contact.js';
 import { errorHandler } from './middleware/error.js';
 import { adminRouter } from './routes/admin.js';
 import { publishedRouter } from './routes/published.js';
+import { warmDatabase } from './config/database.js';
 const app = express();
 app.disable('x-powered-by');
 app.use(helmet());
@@ -36,7 +37,12 @@ app.use(
 app.use('/api/admin', express.json({ limit: '256kb', type: 'application/json' }), adminRouter);
 app.use('/api/published', publishedRouter);
 app.use(express.json({ limit: '16kb', type: 'application/json' }));
-app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'techie-growera-api' }));
+app.get('/api/health', (req, res) => {
+  if (req.query.warm === 'true') {
+    warmDatabase();
+  }
+  res.json({ ok: true, service: 'techie-growera-api', time: new Date().toISOString() });
+});
 app.use('/api/contact', contactRouter);
 app.use((_req, res) => res.status(404).json({ ok: false, message: 'Endpoint not found.' }));
 app.use(errorHandler);

@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { ArrowUpRight } from 'lucide-react';
 import { services } from '@/content/services';
 import { site } from '@/lib/site';
+import { socialProfiles } from '@/components/social-links';
+
 export function Footer() {
   return (
     <footer className="site-footer">
@@ -13,8 +16,8 @@ export function Footer() {
               Techie <strong>Growera</strong>
             </span>
           </Link>
-          <p>Technology, creativity and a clear direction for your digital growth.</p>
-          <span className="eyebrow">WEB · CREATIVE · GROWTH</span>
+          <p>Scaling digital presence with intent. Web development, creative and measurable growth.</p>
+          <span className="eyebrow">SCALING DIGITAL PRESENCE WITH INTENT</span>
           {site.email && <a href={`mailto:${site.email}`}>{site.email}</a>}
           {site.phones.map((phone) => (
             <a key={phone} href={`tel:${phone.replace(/[^+\d]/g, '')}`}>
@@ -56,14 +59,25 @@ export function Footer() {
           <Link className="text-link" href="/contact">
             Discuss your project ↗
           </Link>
-          {site.socials.map((url, i) => (
-            <a href={url} key={url} rel="noopener noreferrer" target="_blank">
-              {new URL(url).hostname.includes('instagram')
-                ? 'Instagram · @techiegrowera'
-                : new URL(url).hostname.replace('www.', '')}
-              <span className="sr-only"> social profile {i + 1} (opens in a new tab)</span> ↗
-            </a>
-          ))}
+          <div className="footer-social-list">
+            {socialProfiles.map((s) => {
+              const Icon = s.icon;
+              return (
+                <a
+                  href={s.url}
+                  key={s.name}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="footer-social-link"
+                  aria-label={`${s.label} (opens in a new tab)`}
+                >
+                  <Icon size={15} aria-hidden="true" className="social-icon" />
+                  <span>{s.label}</span>
+                  <ArrowUpRight size={13} aria-hidden="true" className="social-arrow" />
+                </a>
+              );
+            })}
+          </div>
         </div>
       </div>
       <div className="container footer-bottom">

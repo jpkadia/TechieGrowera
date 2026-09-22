@@ -1,5 +1,7 @@
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
+import { ScrollToTop } from '@/components/scroll-to-top';
+import { Warmup } from '@/components/warmup';
 import { JsonLd } from '@/components/ui';
 import { Analytics } from '@/components/analytics';
 import { absolute, site } from '@/lib/site';
@@ -10,9 +12,11 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <a className="skip-link" href="#main">
         Skip to content
       </a>
+      <Warmup />
       <Header />
       <main id="main">{children}</main>
       <Footer />
+      <ScrollToTop />
       <Analytics />
       <JsonLd
         data={[
@@ -21,12 +25,30 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             '@type': 'Organization',
             '@id': absolute('/#organization'),
             name: site.name,
-            alternateName: 'Techie Growera',
+            alternateName: ['TechieGrowera', 'Techie Grow Era', 'TechieGrowera Agency'],
+            slogan: site.tagline,
             url: site.url,
             logo: absolute('/brand/logo.png'),
+            image: absolute('/brand/logo.png'),
             ...(site.email && { email: site.email }),
             ...(site.phone && { telephone: site.phone }),
-            founder: site.founders.map(({ name, role }) => ({ '@type': 'Person', name, jobTitle: role })),
+            founder: site.founders.map((f) => ({
+              '@type': 'Person',
+              '@id': absolute(`/about#${f.name.toLowerCase().replace(/\s+/g, '-')}`),
+              name: f.name,
+              jobTitle: f.role,
+              ...(f.image
+                ? {
+                    image: {
+                      '@type': 'ImageObject',
+                      url: absolute(f.image),
+                      caption: `${f.name} — Co-Founder & ${f.role} at Techie Growera`,
+                    },
+                  }
+                : {}),
+              ...(f.portfolio ? { url: f.portfolio } : {}),
+              ...(f.linkedin ? { sameAs: [f.linkedin] } : {}),
+            })),
             contactPoint: site.phones.map((telephone) => ({
               '@type': 'ContactPoint',
               telephone,
@@ -40,7 +62,12 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             '@type': 'WebSite',
             '@id': absolute('/#website'),
             name: site.name,
-            alternateName: 'Techie Growera',
+            alternateName: [
+              'TechieGrowera',
+              'Techie Grow Era',
+              'TechieGrowera Agency',
+              new URL(site.url).hostname,
+            ],
             url: site.url,
             publisher: { '@id': absolute('/#organization') },
           },
@@ -49,12 +76,28 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
                 {
                   '@context': 'https://schema.org',
                   '@type': 'ProfessionalService',
+                  '@id': absolute('/#localbusiness'),
                   name: site.name,
+                  alternateName: ['TechieGrowera', 'Techie Grow Era'],
                   url: site.url,
+                  logo: absolute('/brand/logo.png'),
                   image: absolute('/brand/logo.png'),
-                  address: site.address,
                   telephone: site.phone,
-                  areaServed: site.serviceArea,
+                  email: site.email,
+                  priceRange: '₹₹',
+                  address: {
+                    '@type': 'PostalAddress',
+                    addressLocality: 'Ahmedabad',
+                    addressRegion: 'Gujarat',
+                    addressCountry: 'IN',
+                  },
+                  areaServed: [
+                    { '@type': 'AdministrativeArea', name: 'Ahmedabad' },
+                    { '@type': 'AdministrativeArea', name: 'Gujarat' },
+                    { '@type': 'Country', name: 'India' },
+                    { '@type': 'Place', name: 'Worldwide' },
+                  ],
+                  sameAs: site.socials,
                 },
               ]
             : []),

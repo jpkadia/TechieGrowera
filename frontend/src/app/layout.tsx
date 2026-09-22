@@ -12,20 +12,31 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   applicationName: site.name,
   title: {
-    default: 'Techie Growera | Web, Creative & Digital Growth Agency',
-    template: '%s | Techie Growera',
+    default: `${site.name} | ${site.tagline}`,
+    template: `%s | ${site.name}`,
   },
   description:
-    'Build and grow your digital presence with website development, SEO, creative and digital marketing.',
+    `${site.name} — ${site.tagline}. Web development, SEO, creative design and digital marketing engineered for measurable growth.`,
   verification: {
     google:
       process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ||
       'M1QXBY-KxnF-x6722-80svgefZMljThY0u42-YqL7vg',
   },
   icons: {
-    icon: { url: '/brand/favicon.svg', type: 'image/svg+xml', sizes: 'any' },
-    apple: '/brand/logo.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/brand/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon-48x48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/icon-96x96.png', sizes: '96x96', type: 'image/png' },
+      { url: '/icon-144x144.png', sizes: '144x144', type: 'image/png' },
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
+  manifest: '/site.webmanifest',
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

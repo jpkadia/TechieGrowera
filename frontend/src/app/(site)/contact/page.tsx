@@ -1,6 +1,8 @@
-import { Breadcrumbs } from '@/components/ui';
+import { ArrowUpRight } from 'lucide-react';
+import { Breadcrumbs, JsonLd } from '@/components/ui';
 import { ContactForm } from '@/components/contact-form';
-import { pageMetadata, site } from '@/lib/site';
+import { absolute, pageMetadata, site } from '@/lib/site';
+import { socialProfiles } from '@/components/social-links';
 export const metadata = pageMetadata(
   'Contact & Project Enquiries',
   'Tell Techie Growera about your website, creative, SEO or marketing project. Share your goals and discuss a focused scope for your business.',
@@ -69,9 +71,67 @@ export default function Contact() {
             </p>
           )}
           {site.serviceArea && <p>Service area: {site.serviceArea}</p>}
+          {socialProfiles.length > 0 && (
+            <div className="contact-social-block">
+              <p className="contact-social-heading">Connect with us</p>
+              <div className="contact-social-list">
+                {socialProfiles.map((s) => {
+                  const Icon = s.icon;
+                  return (
+                    <a
+                      key={s.name}
+                      href={s.url}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      className="contact-social-link"
+                      aria-label={`${s.name} (opens in a new tab)`}
+                    >
+                      <span className="contact-social-icon-wrapper" aria-hidden="true">
+                        <Icon size={16} className="social-icon" />
+                      </span>
+                      <span className="contact-social-name">{s.name}</span>
+                      <ArrowUpRight size={13} aria-hidden="true" className="social-arrow" />
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </aside>
         <ContactForm />
       </section>
+      <JsonLd
+        data={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'ContactPage',
+            '@id': absolute('/contact#webpage'),
+            url: absolute('/contact'),
+            name: 'Contact Techie Growera | Digital Agency Consultations & Enquiries',
+            description:
+              'Get in touch with Parth Kadiya and Kush Kadia at Techie Growera for web development, SEO, creative design, and digital marketing enquiries.',
+            isPartOf: { '@id': absolute('/#website') },
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: absolute('/'),
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Contact',
+                item: absolute('/contact'),
+              },
+            ],
+          },
+        ]}
+      />
     </>
   );
 }

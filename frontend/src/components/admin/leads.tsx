@@ -133,8 +133,8 @@ export function Leads() {
               <dd>{selected.phone || 'Not provided'}</dd>
             </div>
             <div>
-              <dt>Budget range</dt>
-              <dd>{selected.budget}</dd>
+              <dt>Budget</dt>
+              <dd>{selected.budget === 'discuss' || !selected.budget ? 'To be discussed' : selected.budget}</dd>
             </div>
             <div>
               <dt>Consent</dt>

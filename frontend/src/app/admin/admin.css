@@ -78,6 +78,17 @@
   width: 100%;
   font-size: 16px;
   min-width: 0;
+  transition: border-color 0.2s ease;
+}
+.admin-root input:focus,
+.admin-root select:focus,
+.admin-root textarea:focus,
+.admin-root input:focus-visible,
+.admin-root select:focus-visible,
+.admin-root textarea:focus-visible {
+  outline: none;
+  border-color: #0b887c;
+  box-shadow: none;
 }
 .admin-root textarea {
   resize: vertical;

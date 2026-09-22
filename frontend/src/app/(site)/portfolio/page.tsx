@@ -3,8 +3,8 @@ import { WorkCard } from '@/components/cards';
 import { getCaseStudies } from '@/lib/published-content';
 import { pageMetadata } from '@/lib/site';
 export const metadata = pageMetadata(
-  'Portfolio & Creative Work',
-  'Explore Techie Growera’s website and creative project previews. Illustrative concepts are clearly labelled alongside project details.',
+  'Portfolio & Client Work',
+  'Explore Techie Growera’s featured client case studies and production web applications across healthcare, AI, and digital commerce.',
   '/portfolio',
 );
 export default async function Portfolio() {
@@ -20,9 +20,9 @@ export default async function Portfolio() {
             <br />portfolio.
           </h1>
           <p className="intro">
-            Browse our website and creative project previews, then open a case study to understand
-            the brief and approach. Projects labelled as concepts are illustrative work, not
-            commissioned client engagements.
+            Browse our featured client case studies and digital applications. Open each case study to explore
+            the engineering architecture, design systems, and measured results. Every solution is custom-scoped
+            to drive tangible growth for your business.
           </p>
         </div>
       </section>

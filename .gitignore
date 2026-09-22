@@ -1,11 +1,35 @@
+# Dependencies
 node_modules/
+
+# Production & Local Builds
 .next/
 dist/
+frontend/.next/
+frontend/dist/
+backend/dist/
+.vercel/
+
+# Environment configurations (Secrets)
 .env*
 !.env.example
 !.env.*.example
-.vercel/
-coverage/
+
+# Logs & Debugging
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test & Coverage Outputs
+coverage/
 test-results/
 *.tsbuildinfo
+
+# Operating System & IDE Artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.tmp
+*.bak
