@@ -58,7 +58,6 @@ export function Header() {
 
   useEffect(() => {
     let stopTimer: ReturnType<typeof setTimeout> | null = null;
-    let justRevealedUntil = 0;
 
     function getScrollY() {
       return Math.max(
@@ -74,7 +73,13 @@ export function Header() {
     function revealHeader() {
       setHidden(false);
       lastScrollY = getScrollY();
-      justRevealedUntil = Date.now() + 350;
+    }
+
+    function scheduleStopReveal() {
+      if (stopTimer) clearTimeout(stopTimer);
+      stopTimer = setTimeout(() => {
+        revealHeader();
+      }, 800);
     }
 
     function handleScroll() {
@@ -88,7 +93,8 @@ export function Header() {
         return;
       }
 
-      if (currentScrollY <= 60) {
+      // If at or near top (<= 25px), always show header
+      if (currentScrollY <= 25) {
         setHidden(false);
         if (stopTimer) clearTimeout(stopTimer);
         lastScrollY = currentScrollY;
@@ -97,46 +103,29 @@ export function Header() {
 
       const diff = currentScrollY - lastScrollY;
 
-      // Scrolling up by more than 5px: reveal immediately
-      if (diff < -5) {
-        revealHeader();
+      // Scrolling down starts (diff > 1): IMMEDIATELY hide header
+      if (diff > 1) {
+        setHidden(true);
+        lastScrollY = currentScrollY;
       }
-      // Scrolling down by more than 4px: turant hide ho jaye
-      else if (diff > 4) {
-        if (Date.now() > justRevealedUntil) {
-          setHidden(true);
-          lastScrollY = currentScrollY;
-        }
+      // Scrolling up (diff < -2): immediately reveal header
+      else if (diff < -2) {
+        setHidden(false);
+        lastScrollY = currentScrollY;
       }
 
-      // When scroll stops: exactly 0.9s (900ms) baad wapis show ho
-      if (stopTimer) clearTimeout(stopTimer);
-      stopTimer = setTimeout(() => {
-        revealHeader();
-      }, 900);
-    }
-
-    function handleScrollStop() {
-      if (stopTimer) clearTimeout(stopTimer);
-      stopTimer = setTimeout(() => {
-        revealHeader();
-      }, 900);
+      // Exactly 0.8s (800ms) after scrolling stops, reveal header
+      scheduleStopReveal();
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     document.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('scrollend', handleScrollStop, { passive: true });
-    window.addEventListener('touchend', handleScrollStop, { passive: true });
-    window.addEventListener('touchcancel', handleScrollStop, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
+    window.addEventListener('scrollend', scheduleStopReveal, { passive: true });
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('scrollend', handleScrollStop);
-      window.removeEventListener('touchend', handleScrollStop);
-      window.removeEventListener('touchcancel', handleScrollStop);
-      window.removeEventListener('resize', handleScroll);
+      window.removeEventListener('scrollend', scheduleStopReveal);
       if (stopTimer) clearTimeout(stopTimer);
     };
   }, [open]);

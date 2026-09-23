@@ -14,25 +14,21 @@ export function ScrollToTop() {
         document.documentElement?.scrollTop || 0,
         document.body?.scrollTop || 0
       );
-      setVisible(scrollY > 80);
+      setVisible(scrollY > 60);
     }
 
     updateVisibility();
 
-    window.addEventListener('scroll', updateVisibility, { passive: true });
-    document.addEventListener('scroll', updateVisibility, { passive: true });
+    window.addEventListener('scroll', updateVisibility, { passive: true, capture: true });
+    document.addEventListener('scroll', updateVisibility, { passive: true, capture: true });
     window.addEventListener('resize', updateVisibility, { passive: true });
-    window.addEventListener('scrollend', updateVisibility, { passive: true });
-    window.addEventListener('touchend', updateVisibility, { passive: true });
-    window.addEventListener('touchmove', updateVisibility, { passive: true });
+    window.addEventListener('orientationchange', updateVisibility, { passive: true });
 
     return () => {
-      window.removeEventListener('scroll', updateVisibility);
-      document.removeEventListener('scroll', updateVisibility);
+      window.removeEventListener('scroll', updateVisibility, { capture: true });
+      document.removeEventListener('scroll', updateVisibility, { capture: true });
       window.removeEventListener('resize', updateVisibility);
-      window.removeEventListener('scrollend', updateVisibility);
-      window.removeEventListener('touchend', updateVisibility);
-      window.removeEventListener('touchmove', updateVisibility);
+      window.removeEventListener('orientationchange', updateVisibility);
     };
   }, []);
 
@@ -43,6 +39,12 @@ export function ScrollToTop() {
     });
     if (document.documentElement) {
       document.documentElement.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
+    if (document.body) {
+      document.body.scrollTo({
         top: 0,
         behavior: 'smooth',
       });
