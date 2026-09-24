@@ -23,7 +23,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
           <Breadcrumbs
             items={[
               { label: 'Case studies', href: '/case-studies' },
-              { label: s.client, href: `/case-studies/${s.slug}` },
+              { label: s.client || s.title, href: `/case-studies/${s.slug}` },
             ]}
           />
           <span className="eyebrow">

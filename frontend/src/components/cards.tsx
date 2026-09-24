@@ -99,13 +99,12 @@ export function BlogCard({ post, index = 0 }: { post: BlogPost; index?: number }
       >
         <span>{post.category}</span>
         <strong>
-          {
+          {post.shortTitle ||
             [
               'Build for\nwhat’s next.',
               'Make it\nmean something.',
               'Start with\na better question.',
-            ][index % 3]
-          }
+            ][index % 3]}
         </strong>
         <ArrowUpRight size={28} aria-hidden="true" />
       </Link>

@@ -26,6 +26,7 @@ const seoSchema = new Schema(
 const blogSchema = new Schema(
   {
     title: { type: String, required: true },
+    shortTitle: String,
     slug: { type: String, required: true, unique: true, match: /^[a-z0-9]+(?:-[a-z0-9]+)*$/ },
     excerpt: String,
     content: [sectionSchema],

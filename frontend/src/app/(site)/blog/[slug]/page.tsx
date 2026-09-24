@@ -2,8 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPosts } from '@/lib/published-content';
 import { getService } from '@/content/services';
-import { Breadcrumbs, CTA, JsonLd, SectionHeading, TextLink } from '@/components/ui';
-import { BlogCard } from '@/components/cards';
+import { Breadcrumbs, CTA, JsonLd, TextLink } from '@/components/ui';
 import { absolute, pageMetadata } from '@/lib/site';
 import { EditorialParagraph } from '@/components/editorial-paragraph';
 export const dynamicParams = true;
@@ -36,7 +35,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
           <Breadcrumbs
             items={[
               { label: 'Blog', href: '/blog' },
-              { label: p.title, href: `/blog/${p.slug}` },
+              { label: p.shortTitle || p.seoTitle || p.title, href: `/blog/${p.slug}` },
             ]}
           />
           <span className="eyebrow">{p.category.toUpperCase()}</span>
@@ -80,18 +79,6 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
           <TextLink href={`/services/${p.service}`}>Explore the related service</TextLink>
         </aside>
       </div>
-      <section className="container section" style={{ paddingTop: 0 }}>
-        <SectionHeading label="KEEP EXPLORING" title="More useful perspectives." />
-        <div className="blog-grid" style={{ marginTop: 35 }}>
-          {posts
-            .filter((post) => post.slug !== slug)
-            .sort((a, b) => Number(b.service === p.service) - Number(a.service === p.service))
-            .slice(0, 3)
-            .map((post, i) => (
-              <BlogCard post={post} index={i} key={post.slug} />
-            ))}
-        </div>
-      </section>
       <CTA />
       <JsonLd
         data={{

@@ -2,6 +2,7 @@ export type ContentSection = { heading: string; paragraphs: string[] };
 export type BlogPost = {
   slug: string;
   title: string;
+  shortTitle?: string;
   excerpt: string;
   author: string;
   authorType?: 'Organization' | 'Person';
@@ -21,6 +22,7 @@ export const posts: BlogPost[] = [
   {
     slug: 'website-redesign-seo-checklist',
     title: 'Planning a website redesign? Protect the foundations first.',
+    shortTitle: 'Website Redesign SEO',
     excerpt:
       'A practical checklist for preserving useful pages, improving the customer journey and preparing for a cleaner launch.',
     author: 'Techie Growera Editorial',
@@ -76,6 +78,7 @@ export const posts: BlogPost[] = [
   {
     slug: 'building-a-useful-social-content-plan',
     title: 'A social content plan your business can actually maintain',
+    shortTitle: 'Social Content Plan',
     excerpt:
       'Turn customer questions and everyday expertise into a focused, repeatable publishing rhythm.',
     author: 'Techie Growera Editorial',
@@ -131,6 +134,7 @@ export const posts: BlogPost[] = [
   {
     slug: 'before-your-first-meta-ads-campaign',
     title: 'Before your first Meta campaign: get the essentials in place',
+    shortTitle: 'Meta Ads Campaign',
     excerpt:
       'A clear offer, a useful landing page and an agreed measurement plan give testing a better starting point.',
     author: 'Techie Growera Editorial',

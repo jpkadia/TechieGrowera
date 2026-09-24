@@ -9,8 +9,8 @@
   --teal: #007e83;
   --aqua: #01bfc3;
   --muted: #566773;
-  --line: #dce5e8;
-  --pale: #f0f8f8;
+  --line: #d0e4e4;
+  --pale: #eaf4f4;
   --white: #fff;
   --radius-btn: 8px;
   --radius-card: 10px;
@@ -25,7 +25,12 @@ html {
 body {
   margin: 0;
   color: var(--navy);
-  background: white;
+  background-color: #f1f8f8;
+  background-image:
+    radial-gradient(ellipse 85% 60% at 50% -12%, rgba(0, 126, 131, 0.12), transparent 72%),
+    radial-gradient(ellipse 70% 45% at 92% 24%, rgba(1, 191, 195, 0.07), transparent 65%),
+    radial-gradient(ellipse 75% 50% at 8% 62%, rgba(0, 126, 131, 0.06), transparent 70%);
+  background-attachment: scroll;
   font-family: var(--font-manrope), Arial, sans-serif;
   font-size: 16px;
   line-height: 1.7;
@@ -242,10 +247,10 @@ textarea:focus-visible {
   right: 0;
   width: 100%;
   z-index: 50;
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(241, 248, 248, 0.86);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(220, 229, 232, 0.7);
+  border-bottom: 1px solid rgba(195, 222, 222, 0.75);
   box-shadow: 0 4px 20px rgba(9, 45, 73, 0.04), inset 0 -1px 0 rgba(255, 255, 255, 0.6);
   transform: translateY(0);
   transition:
@@ -261,10 +266,10 @@ textarea:focus-visible {
   transform: translateY(0);
 }
 .site-header.is-scrolled {
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(235, 246, 246, 0.94);
   -webkit-backdrop-filter: blur(24px) saturate(190%);
   backdrop-filter: blur(24px) saturate(190%);
-  border-bottom-color: rgba(220, 229, 232, 0.9);
+  border-bottom-color: rgba(180, 218, 218, 0.9);
   box-shadow: 0 8px 30px rgba(9, 45, 73, 0.08), inset 0 -1px 0 rgba(255, 255, 255, 0.8);
 }
 body:has(.site-header) {
@@ -476,6 +481,8 @@ body:has(.site-header) {
 .hero {
   padding: 73px 0 70px;
   overflow: hidden;
+  background: linear-gradient(180deg, rgba(220, 244, 243, 0.8) 0%, rgba(240, 248, 248, 0.45) 65%, transparent 100%);
+  border-bottom: 1px solid rgba(190, 222, 222, 0.65);
 }
 .hero-grid {
   display: grid;
@@ -675,7 +682,8 @@ body:has(.site-header) {
   }
 }
 .value-strip {
-  border-block: 1px solid var(--line);
+  border-block: 1px solid rgba(188, 220, 220, 0.85);
+  background: rgba(0, 126, 131, 0.05);
   padding: 24px 0;
 }
 .value-strip .container {
@@ -722,10 +730,10 @@ body:has(.site-header) {
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .service-card:hover {
-  background: #fbfdfd;
+  background: #f4faf9;
   transform: translateY(-4px);
-  box-shadow: 0 16px 36px rgba(9, 45, 73, 0.08);
-  border-color: #c7dede;
+  box-shadow: 0 16px 36px rgba(0, 126, 131, 0.12);
+  border-color: #b5dedc;
   z-index: 2;
 }
 .card-top {
@@ -792,7 +800,8 @@ body:has(.site-header) {
   font-weight: 750;
 }
 .why-section {
-  background: #f6f9fa;
+  background: #e7f3f3;
+  border-block: 1px solid rgba(192, 222, 222, 0.75);
 }
 .split {
   display: grid;
@@ -910,10 +919,10 @@ body:has(.site-header) {
 }
 .growth-fullwidth-banner {
   width: 100%;
-  margin-top: 35px;
-  background: #f3f8f7;
-  border-block: 1px solid var(--line);
-  padding: 28px 24px;
+  margin-top: 15px;
+  background: transparent;
+  border-block: none;
+  padding: 12px 24px 24px;
   overflow: hidden;
 }
 .growth-fullwidth-img {
@@ -950,8 +959,8 @@ body:has(.site-header) {
   margin-top: 20px;
 }
 .process-section {
-  background: #f5f9f9;
-  border-block: 1px solid var(--line);
+  background: #e5f2f1;
+  border-block: 1px solid rgba(188, 220, 220, 0.85);
 }
 .process-grid {
   display: grid;
@@ -1260,6 +1269,8 @@ body:has(.site-header) {
 }
 .site-footer {
   padding-top: 65px;
+  background: #eaf4f4;
+  border-top: 1px solid rgba(190, 222, 222, 0.85);
 }
 .footer-grid {
   display: grid;
@@ -1350,8 +1361,8 @@ body:has(.site-header) {
 }
 .page-hero {
   padding: 45px 0 75px;
-  background: linear-gradient(110deg, #fff 40%, #eff8f7);
-  border-bottom: 1px solid var(--line);
+  background: linear-gradient(135deg, #dcf0ef 0%, #eaf5f5 55%, #f2f8f8 100%);
+  border-bottom: 1px solid rgba(190, 222, 222, 0.85);
 }
 .breadcrumbs {
   margin-bottom: 35px;
@@ -2800,9 +2811,9 @@ body:has(.site-header) {
 .about-studio-fullwidth {
   width: 100%;
   margin: 0 0 60px;
-  background: #f6f9fa;
+  background: #e8f4f4;
   border-top: none;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid rgba(188, 220, 220, 0.85);
   padding: 10px 0 0;
   overflow: hidden;
 }
