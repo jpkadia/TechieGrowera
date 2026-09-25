@@ -33,3 +33,8 @@ Thumbs.db
 .idea/
 *.tmp
 *.bak
+
+# Documentation
+README.md
+readme.md
+README*.md
