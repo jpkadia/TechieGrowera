@@ -102,13 +102,26 @@ export async function POST(request: NextRequest) {
       return respond('Unable to validate this request.', 400);
     }
 
+    const userAgent = request.headers.get('user-agent') || '';
+    const platformVersion = request.headers.get('sec-ch-ua-platform-version') || '';
+    const clientOs = request.headers.get('x-client-os') || '';
+    const clientBrowser = request.headers.get('x-client-browser') || '';
+    const clientDevice = request.headers.get('x-client-device') || '';
+
+    const upstreamHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'x-api-proxy-secret': secret,
+      'x-client-ip': ip,
+      'user-agent': userAgent,
+    };
+    if (platformVersion) upstreamHeaders['sec-ch-ua-platform-version'] = platformVersion;
+    if (clientOs) upstreamHeaders['x-client-os'] = clientOs;
+    if (clientBrowser) upstreamHeaders['x-client-browser'] = clientBrowser;
+    if (clientDevice) upstreamHeaders['x-client-device'] = clientDevice;
+
     const upstream = await fetch(new URL('/api/chat', api), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-proxy-secret': secret,
-        'x-client-ip': ip,
-      },
+      headers: upstreamHeaders,
       body,
       cache: 'no-store',
       redirect: 'error',

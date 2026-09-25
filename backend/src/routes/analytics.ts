@@ -12,10 +12,14 @@ const visitSchema = z.object({
   sessionId: z.string().trim().max(100).optional().default(''),
   path: z.string().trim().min(1).max(500),
   referrer: z.string().trim().max(1000).optional().default(''),
+  clientOs: z.string().trim().max(100).optional(),
+  clientBrowser: z.string().trim().max(100).optional(),
+  clientDevice: z.string().trim().max(50).optional(),
 });
 
 analyticsRouter.post('/visit', authenticateProxy, async (req, res) => {
   const ua = (req.get('user-agent') || '').slice(0, 500);
+  const platformVer = (req.get('sec-ch-ua-platform-version') || '').slice(0, 50);
 
   // Skip search bots & crawlers so they don't pollute analytics
   if (isBot(ua)) {
@@ -27,19 +31,27 @@ analyticsRouter.post('/visit', authenticateProxy, async (req, res) => {
     return res.status(400).json({ ok: false, message: 'Invalid payload.' });
   }
 
-  const { visitorId, sessionId, path, referrer } = parseResult.data;
+  const { visitorId, sessionId, path, referrer, clientOs, clientBrowser, clientDevice } = parseResult.data;
   const ip = req.get('x-client-ip') || '';
-  const { os, browser, device } = parseUserAgent(ua);
+  const { os, browser, device } = parseUserAgent(ua, platformVer, {
+    os: clientOs,
+    browser: clientBrowser,
+    device: clientDevice,
+  });
 
   try {
     await connectDatabase();
     await VisitorLog.findOneAndUpdate(
       { visitorId },
       {
-        $setOnInsert: { visitorId, ip, os, browser, device, firstSeenAt: new Date() },
+        $setOnInsert: { visitorId, firstSeenAt: new Date() },
         $set: {
           lastSeenAt: new Date(),
           ...(sessionId ? { sessionId } : {}),
+          ...(os && os !== 'Unknown OS' ? { os } : {}),
+          ...(browser && browser !== 'Unknown Browser' ? { browser } : {}),
+          ...(device ? { device } : {}),
+          ...(ip ? { ip } : {}),
         },
         $push: {
           pages: {

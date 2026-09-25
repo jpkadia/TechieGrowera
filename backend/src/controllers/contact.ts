@@ -18,6 +18,11 @@ export async function createContact(req: Request, res: Response, next: NextFunct
       return res.status(422).json({ ok: false, message: 'Please refresh the form and try again.' });
 
     const userAgent = (req.get('user-agent') || '').slice(0, 500);
+    const platformVer = (req.get('sec-ch-ua-platform-version') || '').slice(0, 50);
+    const clientOs = (req.get('x-client-os') || '').slice(0, 50);
+    const clientBrowser = (req.get('x-client-browser') || '').slice(0, 50);
+    const clientDevice = (req.get('x-client-device') || '').slice(0, 50);
+
     const rawIp =
       req.get('x-client-ip') ||
       req.get('x-forwarded-for')?.split(',')[0].trim() ||
@@ -26,7 +31,11 @@ export async function createContact(req: Request, res: Response, next: NextFunct
       req.socket.remoteAddress ||
       '127.0.0.1';
     const ip = rawIp.replace(/^::ffff:/, '');
-    const { os, browser, device } = parseUserAgent(userAgent);
+    const { os, browser, device } = parseUserAgent(userAgent, platformVer, {
+      os: clientOs,
+      browser: clientBrowser,
+      device: clientDevice,
+    });
 
     await ContactLead.create({
       ...lead,

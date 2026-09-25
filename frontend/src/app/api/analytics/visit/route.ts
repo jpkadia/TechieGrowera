@@ -17,15 +17,25 @@ export async function POST(request: NextRequest) {
         ? (request.headers.get('x-vercel-forwarded-for') || '').split(',')[0].trim()
         : '127.0.0.1';
     const userAgent = request.headers.get('user-agent') || '';
+    const platformVersion = request.headers.get('sec-ch-ua-platform-version') || '';
+    const platform = request.headers.get('sec-ch-ua-platform') || '';
+
+    const upstreamHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'x-api-proxy-secret': secret,
+      'x-client-ip': ip,
+      'user-agent': userAgent,
+    };
+    if (platformVersion) {
+      upstreamHeaders['sec-ch-ua-platform-version'] = platformVersion;
+    }
+    if (platform) {
+      upstreamHeaders['sec-ch-ua-platform'] = platform;
+    }
 
     const upstream = await fetch(new URL('/api/analytics/visit', api), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-proxy-secret': secret,
-        'x-client-ip': ip,
-        'user-agent': userAgent,
-      },
+      headers: upstreamHeaders,
       body,
       cache: 'no-store',
       signal: AbortSignal.timeout(8000),

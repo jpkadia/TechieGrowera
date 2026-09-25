@@ -41,6 +41,9 @@ const chatRequestSchema = z.object({
     .max(6)
     .optional()
     .default([]),
+  clientOs: z.string().trim().max(100).optional(),
+  clientBrowser: z.string().trim().max(100).optional(),
+  clientDevice: z.string().trim().max(50).optional(),
 });
 
 // GET /api/chat/history?sessionId=... (fetch history for returning visitor)
@@ -105,7 +108,16 @@ chatRouter.post('/', authenticateProxy, chatLimiter, async (req, res) => {
     await connectDatabase();
     const ip = req.get('x-client-ip') || '';
     const userAgent = (req.get('user-agent') || '').slice(0, 500);
-    const { os, browser, device } = parseUserAgent(userAgent);
+    const platformVer = (req.get('sec-ch-ua-platform-version') || '').slice(0, 50);
+    const clientOs = (req.get('x-client-os') || parseResult.data.clientOs || '').slice(0, 50);
+    const clientBrowser = (req.get('x-client-browser') || parseResult.data.clientBrowser || '').slice(0, 50);
+    const clientDevice = (req.get('x-client-device') || parseResult.data.clientDevice || '').slice(0, 50);
+
+    const { os, browser, device } = parseUserAgent(userAgent, platformVer, {
+      os: clientOs,
+      browser: clientBrowser,
+      device: clientDevice,
+    });
 
     const now = new Date();
     const userMsg = { role: 'user' as const, content: message, timestamp: now };
@@ -115,7 +127,12 @@ chatRouter.post('/', authenticateProxy, chatLimiter, async (req, res) => {
       { sessionId },
       {
         $setOnInsert: { sessionId, ip, userAgent, os, browser, device },
-        $set: { lastActiveAt: new Date() },
+        $set: {
+          lastActiveAt: new Date(),
+          ...(os && os !== 'Unknown OS' ? { os } : {}),
+          ...(browser && browser !== 'Unknown Browser' ? { browser } : {}),
+          ...(device ? { device } : {}),
+        },
         $push: {
           messages: {
             $each: [userMsg, botMsg],

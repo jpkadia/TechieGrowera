@@ -405,72 +405,112 @@ adminRouter.delete('/chats/:id', async (req, res) => {
   res.json({ ok: true, message: 'Conversation deleted successfully.' });
 });
 
-// Admin: Aggregated visitor traffic analytics (filtered to 60 days, paginated to 10 per page)
+// Admin: Aggregated visitor traffic analytics (full 60-day retention with range filters)
 adminRouter.get('/analytics', async (req, res) => {
   const page = Math.max(1, parseInt(String(req.query.page || '1'), 10));
-  const limit = 10;
+  const limit = Math.min(100, Math.max(5, parseInt(String(req.query.limit || '15'), 10)));
+  const range = String(req.query.range || 'all');
   const skip = (page - 1) * limit;
-  const cutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
-  const filter = { lastSeenAt: { $gte: cutoff } };
 
-  const [totalVisitors, totalChats, recentVisitors, osStats, browserStats, deviceStats] =
-    await Promise.all([
-      VisitorLog.countDocuments(filter),
-      ChatSession.countDocuments({ lastActiveAt: { $gte: cutoff } }),
-      VisitorLog.find(filter).sort({ lastSeenAt: -1 }).skip(skip).limit(limit).lean(),
-      VisitorLog.aggregate([
-        { $match: filter },
-        { $group: { _id: '$os', count: { $sum: 1 } } },
-        { $sort: { count: -1 } },
-        { $limit: 6 },
-      ]),
-      VisitorLog.aggregate([
-        { $match: filter },
-        { $group: { _id: '$browser', count: { $sum: 1 } } },
-        { $sort: { count: -1 } },
-        { $limit: 6 },
-      ]),
-      VisitorLog.aggregate([
-        { $match: filter },
-        { $group: { _id: '$device', count: { $sum: 1 } } },
-        { $sort: { count: -1 } },
-        { $limit: 6 },
-      ]),
-    ]);
+  // Base 60-day auto-retention policy cutoff
+  const retentionCutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
 
-  const pageviewsAgg = await VisitorLog.aggregate([
-    { $match: filter },
-    { $project: { pageCount: { $size: '$pages' } } },
-    { $group: { _id: null, total: { $sum: '$pageCount' } } },
+  // Time range calculation
+  let rangeCutoff = retentionCutoff;
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  if (range === 'today') {
+    rangeCutoff = startOfToday;
+  } else if (range === '7d') {
+    rangeCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  } else if (range === '30d') {
+    rangeCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  }
+
+  const filter = { lastSeenAt: { $gte: rangeCutoff } };
+  const allTimeFilter = { lastSeenAt: { $gte: retentionCutoff } };
+  const todayFilter = { lastSeenAt: { $gte: startOfToday } };
+
+  const [
+    totalVisitors,
+    allTimeVisitors,
+    todayVisitors,
+    totalChats,
+    allTimeChats,
+    visitorsList,
+    osStats,
+    browserStats,
+    deviceStats,
+    pageviewsAgg,
+  ] = await Promise.all([
+    VisitorLog.countDocuments(filter),
+    VisitorLog.countDocuments(allTimeFilter),
+    VisitorLog.countDocuments(todayFilter),
+    ChatSession.countDocuments({ lastActiveAt: { $gte: rangeCutoff } }),
+    ChatSession.countDocuments({ lastActiveAt: { $gte: retentionCutoff } }),
+    VisitorLog.find(filter).sort({ lastSeenAt: -1 }).skip(skip).limit(limit).lean(),
+    VisitorLog.aggregate([
+      { $match: filter },
+      { $group: { _id: '$os', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 6 },
+    ]),
+    VisitorLog.aggregate([
+      { $match: filter },
+      { $group: { _id: '$browser', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 6 },
+    ]),
+    VisitorLog.aggregate([
+      { $match: filter },
+      { $group: { _id: '$device', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 6 },
+    ]),
+    VisitorLog.aggregate([
+      { $match: filter },
+      { $project: { pageCount: { $size: '$pages' } } },
+      { $group: { _id: null, total: { $sum: '$pageCount' } } },
+    ]),
   ]);
+
   const totalPageViews = pageviewsAgg[0]?.total || 0;
+
+  const formattedVisitors = visitorsList.map((v) => ({
+    _id: v._id,
+    visitorId: v.visitorId,
+    sessionId: v.sessionId || null,
+    ip: v.ip || 'Unknown',
+    os: v.os || 'Unknown',
+    browser: v.browser || 'Unknown',
+    device: v.device || 'Desktop',
+    pagesVisited: v.pages?.map((p: { path: string }) => p.path) || [],
+    pageCount: v.pages?.length || 0,
+    firstSeenAt: v.firstSeenAt,
+    lastSeenAt: v.lastSeenAt,
+  }));
 
   res.json({
     ok: true,
+    range,
     stats: {
       totalVisitors,
+      allTimeVisitors,
+      todayVisitors,
       totalPageViews,
       totalChats,
+      allTimeChats,
       osBreakdown: osStats.map((item) => ({ name: item._id || 'Unknown', count: item.count })),
       browserBreakdown: browserStats.map((item) => ({ name: item._id || 'Unknown', count: item.count })),
       deviceBreakdown: deviceStats.map((item) => ({ name: item._id || 'Unknown', count: item.count })),
     },
-    recentVisitors: recentVisitors.map((v) => ({
-      _id: v._id,
-      visitorId: v.visitorId,
-      sessionId: v.sessionId || null,
-      ip: v.ip || 'Unknown',
-      os: v.os || 'Unknown',
-      browser: v.browser || 'Unknown',
-      device: v.device || 'Desktop',
-      pagesVisited: v.pages?.map((p: { path: string }) => p.path) || [],
-      pageCount: v.pages?.length || 0,
-      firstSeenAt: v.firstSeenAt,
-      lastSeenAt: v.lastSeenAt,
-    })),
+    visitors: formattedVisitors,
+    recentVisitors: formattedVisitors, // backward compatibility
     total: totalVisitors,
     page,
     pages: Math.ceil(totalVisitors / limit) || 1,
+    limit,
   });
 });
 

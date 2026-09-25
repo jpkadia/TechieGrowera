@@ -1,8 +1,9 @@
 'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Inbox,
@@ -17,6 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { adminApi } from './api';
+
 const links = [
   ['/admin', 'Overview', LayoutDashboard],
   ['/admin/leads', 'Enquiries', Inbox],
@@ -26,11 +28,40 @@ const links = [
   ['/admin/content/portfolio', 'Portfolio', BriefcaseBusiness],
   ['/admin/logs', 'Activity log', History],
 ] as const;
+
 export function AdminShell({ email, children }: { email: string; children: React.ReactNode }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState('');
-  useEffect(()=>{const close=(event:KeyboardEvent)=>{if(event.key==='Escape')setOpen(false);};window.addEventListener('keydown',close);return()=>window.removeEventListener('keydown',close);},[]);
+
+  // Auto-close on Escape key
+  useEffect(() => {
+    const close = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', close);
+    return () => window.removeEventListener('keydown', close);
+  }, []);
+
+  // Lock background scrolling on mobile when sidebar drawer is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
+  // Auto-close drawer on route navigation
+  const [prevPath, setPrevPath] = useState(path);
+  if (prevPath !== path) {
+    setPrevPath(path);
+    setOpen(false);
+  }
+
   async function logout() {
     try {
       await adminApi('logout', 'POST', {});
@@ -41,24 +72,45 @@ export function AdminShell({ email, children }: { email: string; children: React
       setError((e as Error).message);
     }
   }
+
   return (
     <div className="admin-workspace">
+      {/* Mobile Backdrop Overlay */}
+      {open && (
+        <div
+          className="admin-backdrop"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       <aside id="admin-sidebar" className={`admin-sidebar ${open ? 'open' : ''}`}>
-        <Link href="/admin" className="admin-wordmark">
-          <Image
-            src="/brand/mark.svg"
-            width={34}
-            height={31}
-            alt="Techie Growera"
-            style={{ width: '34px', height: 'auto', flexShrink: 0 }}
-          />
-          <span className="brand-info">
-            <span className="brand-name">
-              Techie <strong>Growera</strong>
+        <div className="admin-sidebar-header">
+          <Link href="/admin" className="admin-wordmark" onClick={() => setOpen(false)}>
+            <Image
+              src="/brand/mark.svg"
+              width={34}
+              height={31}
+              alt="Techie Growera"
+              style={{ width: '34px', height: 'auto', flexShrink: 0 }}
+            />
+            <span className="brand-info">
+              <span className="brand-name">
+                Techie <strong>Growera</strong>
+              </span>
+              <small>ADMIN WORKSPACE</small>
             </span>
-            <small>ADMIN WORKSPACE</small>
-          </span>
-        </Link>
+          </Link>
+          <button
+            type="button"
+            className="admin-sidebar-close"
+            onClick={() => setOpen(false)}
+            aria-label="Close sidebar navigation"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
         <span className="admin-nav-label">WORKSPACE</span>
         <nav aria-label="Admin navigation">
           {links.map(([href, label, Icon]) => (
@@ -77,6 +129,7 @@ export function AdminShell({ email, children }: { email: string; children: React
             </Link>
           ))}
         </nav>
+
         <div className="admin-sidebar-bottom">
           <Link href="/" target="_blank" rel="noopener noreferrer">
             View website <ArrowUpRight size={16} />
@@ -89,6 +142,7 @@ export function AdminShell({ email, children }: { email: string; children: React
           {error && <p role="alert">{error}</p>}
         </div>
       </aside>
+
       <div className="admin-main">
         <header className="admin-topbar">
           <button
@@ -113,6 +167,7 @@ export function AdminShell({ email, children }: { email: string; children: React
     </div>
   );
 }
+
 function LockIcon() {
   return <span className="admin-status-dot" aria-hidden="true" />;
 }

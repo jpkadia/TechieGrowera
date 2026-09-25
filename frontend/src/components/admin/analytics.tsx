@@ -3,7 +3,16 @@
 import { useState } from 'react';
 import { useAdminData, date } from './api';
 import { AdminHeading, Notice, Pager } from './shared';
-import { Users, Eye, MessageSquare, Monitor, Smartphone, Tablet, RefreshCw } from 'lucide-react';
+import {
+  Users,
+  Eye,
+  MessageSquare,
+  Monitor,
+  Smartphone,
+  Tablet,
+  RefreshCw,
+  Clock,
+} from 'lucide-react';
 import Link from 'next/link';
 
 type BreakdownItem = {
@@ -12,14 +21,32 @@ type BreakdownItem = {
 };
 
 type AnalyticsData = {
+  range?: string;
   stats: {
     totalVisitors: number;
+    allTimeVisitors?: number;
+    todayVisitors?: number;
     totalPageViews: number;
+    allTimePageViews?: number;
     totalChats: number;
+    allTimeChats?: number;
     osBreakdown: BreakdownItem[];
     browserBreakdown: BreakdownItem[];
     deviceBreakdown: BreakdownItem[];
   };
+  visitors?: Array<{
+    _id: string;
+    visitorId: string;
+    sessionId: string | null;
+    ip: string;
+    os: string;
+    browser: string;
+    device: string;
+    pagesVisited: string[];
+    pageCount: number;
+    firstSeenAt: string;
+    lastSeenAt: string;
+  }>;
   recentVisitors: Array<{
     _id: string;
     visitorId: string;
@@ -36,20 +63,43 @@ type AnalyticsData = {
   total: number;
   page: number;
   pages: number;
+  limit?: number;
 };
 
 export function AnalyticsDashboard() {
   const [page, setPage] = useState(1);
-  const { data, error, reload, loading } = useAdminData<AnalyticsData>(`analytics?page=${page}`);
+  const [range, setRange] = useState<'all' | 'today' | '7d' | '30d'>('all');
+  const [limit, setLimit] = useState(15);
+
+  const { data, error, reload, loading } = useAdminData<AnalyticsData>(
+    `analytics?page=${page}&limit=${limit}&range=${range}`,
+  );
+
+  function handleRangeChange(newRange: 'all' | 'today' | '7d' | '30d') {
+    setRange(newRange);
+    setPage(1);
+  }
+
+  function handleLimitChange(newLimit: number) {
+    setLimit(newLimit);
+    setPage(1);
+  }
+
+  const visitorsList = data?.visitors || data?.recentVisitors || [];
+  const allTimeCount = data?.stats.allTimeVisitors ?? data?.stats.totalVisitors ?? 0;
+  const todayCount = data?.stats.todayVisitors ?? 0;
 
   return (
     <>
       <AdminHeading
         eyebrow="AUDIENCE INTELLIGENCE"
         title="Visitors & Traffic"
-        text="Real-time website visitor activity, technology breakdown, and engagement tracking."
+        text="All-time visitor activity, device breakdown, and traffic retention (retained for 60 days before auto-purge)."
       >
-        <button onClick={reload} className="button button-secondary flex items-center gap-1.5 cursor-pointer">
+        <button
+          onClick={reload}
+          className="button button-secondary flex items-center gap-1.5 cursor-pointer"
+        >
           <RefreshCw size={14} /> Refresh
         </button>
       </AdminHeading>
@@ -61,20 +111,29 @@ export function AnalyticsDashboard() {
       {data && (
         <div className="space-y-6">
           {/* Top Summary Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-5 rounded-xl border border-[#d0e4e4] shadow-xs">
               <div className="flex items-center justify-between text-[#566773] mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Total Visitors</span>
+                <span className="text-xs font-semibold uppercase tracking-wider">All-Time Visitors</span>
                 <Users size={18} className="text-[#007e83]" />
               </div>
-              <div className="text-2xl font-bold text-[#092d49]">{data.stats.totalVisitors}</div>
-              <p className="text-xs text-[#566773] mt-1">Unique visitor sessions tracked</p>
+              <div className="text-2xl font-bold text-[#092d49]">{allTimeCount}</div>
+              <p className="text-xs text-[#566773] mt-1">Full 60-day retention window</p>
+            </div>
+
+            <div className="bg-white p-5 rounded-xl border border-[#d0e4e4] shadow-xs">
+              <div className="flex items-center justify-between text-[#566773] mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Today&apos;s Visitors</span>
+                <Clock size={18} className="text-[#01bfc3]" />
+              </div>
+              <div className="text-2xl font-bold text-[#092d49]">{todayCount}</div>
+              <p className="text-xs text-[#566773] mt-1">Active visitors since midnight</p>
             </div>
 
             <div className="bg-white p-5 rounded-xl border border-[#d0e4e4] shadow-xs">
               <div className="flex items-center justify-between text-[#566773] mb-2">
                 <span className="text-xs font-semibold uppercase tracking-wider">Total Page Views</span>
-                <Eye size={18} className="text-[#01bfc3]" />
+                <Eye size={18} className="text-[#007e83]" />
               </div>
               <div className="text-2xl font-bold text-[#092d49]">{data.stats.totalPageViews}</div>
               <p className="text-xs text-[#566773] mt-1">
@@ -87,7 +146,7 @@ export function AnalyticsDashboard() {
             <div className="bg-white p-5 rounded-xl border border-[#d0e4e4] shadow-xs">
               <div className="flex items-center justify-between text-[#566773] mb-2">
                 <span className="text-xs font-semibold uppercase tracking-wider">Chat Conversations</span>
-                <MessageSquare size={18} className="text-[#007e83]" />
+                <MessageSquare size={18} className="text-[#01bfc3]" />
               </div>
               <div className="text-2xl font-bold text-[#092d49]">{data.stats.totalChats}</div>
               <p className="text-xs text-[#566773] mt-1">
@@ -108,14 +167,17 @@ export function AnalyticsDashboard() {
                   <p className="text-xs text-[#566773]">No OS data logged yet.</p>
                 )}
                 {data.stats.osBreakdown.map((item) => {
-                  const pct = data.stats.totalVisitors > 0
-                    ? Math.round((item.count / data.stats.totalVisitors) * 100)
-                    : 0;
+                  const pct =
+                    data.stats.totalVisitors > 0
+                      ? Math.round((item.count / data.stats.totalVisitors) * 100)
+                      : 0;
                   return (
                     <div key={item.name} className="space-y-1">
                       <div className="flex justify-between text-xs text-[#092d49]">
                         <span>{item.name}</span>
-                        <span className="font-semibold">{item.count} ({pct}%)</span>
+                        <span className="font-semibold">
+                          {item.count} ({pct}%)
+                        </span>
                       </div>
                       <div className="w-full bg-[#f1f8f8] h-2 rounded-full overflow-hidden">
                         <div
@@ -137,14 +199,17 @@ export function AnalyticsDashboard() {
                   <p className="text-xs text-[#566773]">No browser data logged yet.</p>
                 )}
                 {data.stats.browserBreakdown.map((item) => {
-                  const pct = data.stats.totalVisitors > 0
-                    ? Math.round((item.count / data.stats.totalVisitors) * 100)
-                    : 0;
+                  const pct =
+                    data.stats.totalVisitors > 0
+                      ? Math.round((item.count / data.stats.totalVisitors) * 100)
+                      : 0;
                   return (
                     <div key={item.name} className="space-y-1">
                       <div className="flex justify-between text-xs text-[#092d49]">
                         <span>{item.name}</span>
-                        <span className="font-semibold">{item.count} ({pct}%)</span>
+                        <span className="font-semibold">
+                          {item.count} ({pct}%)
+                        </span>
                       </div>
                       <div className="w-full bg-[#f1f8f8] h-2 rounded-full overflow-hidden">
                         <div
@@ -166,17 +231,26 @@ export function AnalyticsDashboard() {
                   <p className="text-xs text-[#566773]">No device data logged yet.</p>
                 )}
                 {data.stats.deviceBreakdown.map((item) => {
-                  const pct = data.stats.totalVisitors > 0
-                    ? Math.round((item.count / data.stats.totalVisitors) * 100)
-                    : 0;
+                  const pct =
+                    data.stats.totalVisitors > 0
+                      ? Math.round((item.count / data.stats.totalVisitors) * 100)
+                      : 0;
                   return (
                     <div key={item.name} className="space-y-1">
                       <div className="flex items-center justify-between text-xs text-[#092d49]">
                         <span className="flex items-center gap-1.5">
-                          {item.name === 'Mobile' ? <Smartphone size={14} /> : item.name === 'Tablet' ? <Tablet size={14} /> : <Monitor size={14} />}
+                          {item.name === 'Mobile' ? (
+                            <Smartphone size={14} />
+                          ) : item.name === 'Tablet' ? (
+                            <Tablet size={14} />
+                          ) : (
+                            <Monitor size={14} />
+                          )}
                           {item.name}
                         </span>
-                        <span className="font-semibold">{item.count} ({pct}%)</span>
+                        <span className="font-semibold">
+                          {item.count} ({pct}%)
+                        </span>
                       </div>
                       <div className="w-full bg-[#f1f8f8] h-2 rounded-full overflow-hidden">
                         <div
@@ -191,18 +265,83 @@ export function AnalyticsDashboard() {
             </div>
           </div>
 
-          {/* Recent Visitor Activity Log */}
+          {/* All-Time Visitors Log Panel */}
           <div className="admin-panel">
-            <div className="admin-panel-heading">
+            <div className="admin-panel-heading flex-wrap gap-4 items-center justify-between">
               <div>
-                <h2>Recent Visitors & Journey</h2>
-                <small className="text-[#617682] block text-[11px] mt-0.5">Tracking visitors active in the last 60 days</small>
+                <h2>All Visitors &amp; Traffic History</h2>
+                <small className="text-[#617682] block text-[11px] mt-0.5">
+                  Showing {data.total} visitors in {range === 'all' ? '60-day auto-retention window' : range === 'today' ? "today's activity" : range === '7d' ? 'last 7 days' : 'last 30 days'} (older logs auto-purged after 60 days)
+                </small>
               </div>
-              <span className="admin-badge">{data.total || data.stats.totalVisitors} TOTAL VISITORS</span>
+
+              {/* Range Filter Controls */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="inline-flex rounded-lg border border-[#cedce1] bg-[#f4f7f9] p-0.5 text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => handleRangeChange('all')}
+                    className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                      range === 'all'
+                        ? 'bg-[#087d78] text-white shadow-xs'
+                        : 'text-[#163747] hover:bg-white/60'
+                    }`}
+                  >
+                    All Time (60 Days)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRangeChange('today')}
+                    className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                      range === 'today'
+                        ? 'bg-[#087d78] text-white shadow-xs'
+                        : 'text-[#163747] hover:bg-white/60'
+                    }`}
+                  >
+                    Today
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRangeChange('7d')}
+                    className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                      range === '7d'
+                        ? 'bg-[#087d78] text-white shadow-xs'
+                        : 'text-[#163747] hover:bg-white/60'
+                    }`}
+                  >
+                    7 Days
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleRangeChange('30d')}
+                    className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                      range === '30d'
+                        ? 'bg-[#087d78] text-white shadow-xs'
+                        : 'text-[#163747] hover:bg-white/60'
+                    }`}
+                  >
+                    30 Days
+                  </button>
+                </div>
+
+                <select
+                  value={limit}
+                  onChange={(e) => handleLimitChange(Number(e.target.value))}
+                  aria-label="Items per page"
+                  className="!w-auto !py-1 !px-2 !text-xs !bg-white !border-[#cedce1] !rounded-md"
+                >
+                  <option value={10}>10 / page</option>
+                  <option value={15}>15 / page</option>
+                  <option value={25}>25 / page</option>
+                  <option value={50}>50 / page</option>
+                </select>
+              </div>
             </div>
 
-            {data.recentVisitors.length === 0 ? (
-              <p className="admin-empty">No visitor activity recorded in the last 60 days.</p>
+            {visitorsList.length === 0 ? (
+              <p className="admin-empty">
+                No visitor activity recorded {range === 'today' ? 'today' : range === '7d' ? 'in the last 7 days' : range === '30d' ? 'in the last 30 days' : 'in the 60-day retention window'}.
+              </p>
             ) : (
               <>
                 <div className="admin-table-wrap">
@@ -210,7 +349,7 @@ export function AnalyticsDashboard() {
                     <thead>
                       <tr>
                         <th>Visitor / IP</th>
-                        <th>Device & OS</th>
+                        <th>Device &amp; OS</th>
                         <th>Pages Visited</th>
                         <th>Chatted?</th>
                         <th>First Seen</th>
@@ -218,18 +357,30 @@ export function AnalyticsDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {data.recentVisitors.map((v) => (
+                      {visitorsList.map((v) => (
                         <tr key={v._id}>
                           <td>
                             <strong>{v.ip}</strong>
-                            <small className="admin-mono text-[#617682]">{v.visitorId.slice(0, 10)}…</small>
+                            <small className="admin-mono text-[#617682]">
+                              {v.visitorId.slice(0, 10)}…
+                            </small>
                           </td>
                           <td>
                             <span className="admin-badge">{v.device}</span>
-                            <small className="text-[#617682] block">{v.os} · {v.browser}</small>
+                            <small className="text-[#617682] block">
+                              {v.os} · {v.browser}
+                            </small>
                           </td>
                           <td>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', maxWidth: '340px' }}>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                flexWrap: 'wrap',
+                                maxWidth: '340px',
+                              }}
+                            >
                               <span className="admin-badge" style={{ fontWeight: 700 }}>
                                 {v.pageCount} {v.pageCount === 1 ? 'page' : 'pages'}
                               </span>
@@ -240,28 +391,19 @@ export function AnalyticsDashboard() {
                                   style={{
                                     fontSize: '11px',
                                     padding: '2px 6px',
-                                    background: '#f1f8f8',
-                                    border: '1px solid #d8e9e7',
                                     borderRadius: '4px',
-                                    color: '#092d49',
-                                    maxWidth: '130px',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
+                                    background: '#f4f7f9',
+                                    border: '1px solid #dce5e9',
                                   }}
-                                  title={p}
                                 >
                                   {p}
                                 </span>
                               ))}
                               {v.pagesVisited.length > 2 && (
                                 <span
+                                  className="admin-badge"
                                   style={{
-                                    fontSize: '10.5px',
-                                    padding: '2px 6px',
-                                    background: '#eef2f5',
-                                    color: '#5d7481',
-                                    borderRadius: '4px',
+                                    fontSize: '10px',
                                     fontWeight: 650,
                                     cursor: 'default',
                                   }}
@@ -277,7 +419,12 @@ export function AnalyticsDashboard() {
                               <Link
                                 href="/admin/chats"
                                 className="admin-badge published"
-                                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  textDecoration: 'none',
+                                }}
                               >
                                 <MessageSquare size={11} /> Yes
                               </Link>
@@ -285,8 +432,12 @@ export function AnalyticsDashboard() {
                               <span className="admin-badge">No</span>
                             )}
                           </td>
-                          <td className="whitespace-nowrap text-xs text-[#566773]">{date(v.firstSeenAt)}</td>
-                          <td className="whitespace-nowrap text-xs text-[#092d49] font-medium">{date(v.lastSeenAt)}</td>
+                          <td className="whitespace-nowrap text-xs text-[#566773]">
+                            {date(v.firstSeenAt)}
+                          </td>
+                          <td className="whitespace-nowrap text-xs text-[#092d49] font-medium">
+                            {date(v.lastSeenAt)}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -295,8 +446,8 @@ export function AnalyticsDashboard() {
 
                 <Pager
                   page={page}
-                  total={data.total || data.stats.totalVisitors}
-                  size={10}
+                  total={data.total || allTimeCount}
+                  size={limit}
                   onChange={setPage}
                 />
               </>

@@ -9,6 +9,7 @@ import {
   Sparkles,
   AlertCircle,
 } from 'lucide-react';
+import { getClientDeviceInfo } from '@/lib/device-detect';
 
 interface ChatMessage {
   id: string;
@@ -199,13 +200,22 @@ export function ChatWidget() {
           content: m.content,
         }));
 
+      const deviceInfo = await getClientDeviceInfo();
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-client-os': deviceInfo.os,
+          'x-client-browser': deviceInfo.browser,
+          'x-client-device': deviceInfo.device,
+        },
         body: JSON.stringify({
           message: text,
           sessionId: sessionId || undefined,
           history: historyPayload.slice(0, -1),
+          clientOs: deviceInfo.os,
+          clientBrowser: deviceInfo.browser,
+          clientDevice: deviceInfo.device,
         }),
       });
 
@@ -461,7 +471,9 @@ export function ChatWidget() {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about web, SEO, design, or projects..."
                   disabled={isLoading}
-                  className="w-full bg-[#f1f8f8] border border-[#d0e4e4] focus:border-[#007e83] focus:bg-white text-[#092d49] placeholder-[#7d8f9d] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none transition-all pr-12 disabled:opacity-50"
+                  className={`w-full h-10 bg-[#f1f8f8] border border-[#d0e4e4] focus:border-[#007e83] focus:bg-white text-[#092d49] placeholder-[#7d8f9d] rounded-xl px-3.5 text-xs sm:text-sm focus:outline-none transition-all disabled:opacity-50 ${
+                    input.length > 350 ? 'pr-14' : 'pr-3.5'
+                  }`}
                 />
                 {input.length > 350 && (
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[#566773]">

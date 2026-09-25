@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { services } from '@/content/services';
+import { getClientDeviceInfo } from '@/lib/device-detect';
 
 type Status = { kind: 'success' | 'error'; text: string } | null;
 type ColdPhase = 'idle' | 'sending' | 'waking' | 'connecting';
@@ -136,9 +137,15 @@ export function ContactForm() {
     }, 16000);
 
     try {
+      const deviceInfo = await getClientDeviceInfo();
       const response = await fetch('/api/contact', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-client-os': deviceInfo.os,
+          'x-client-browser': deviceInfo.browser,
+          'x-client-device': deviceInfo.device,
+        },
         body: JSON.stringify({
           ...values,
           consent: values.consent === 'on',
