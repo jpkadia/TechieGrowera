@@ -14,6 +14,10 @@ type Lead = {
   status: string;
   createdAt: string;
   consent: boolean;
+  ip?: string;
+  os?: string;
+  browser?: string;
+  device?: string;
 };
 export function Leads() {
   const [page, setPage] = useState(1);
@@ -74,6 +78,7 @@ export function Leads() {
                   <tr>
                     <th>Contact</th>
                     <th>Service</th>
+                    <th>Environment</th>
                     <th>Received</th>
                     <th>Status</th>
                     <th>Details</th>
@@ -87,6 +92,15 @@ export function Leads() {
                         <small>{item.businessName || item.email}</small>
                       </td>
                       <td>{item.service.replaceAll('-', ' ')}</td>
+                      <td>
+                        <span style={{ fontSize: '0.82rem', color: '#143447', fontWeight: 600 }}>
+                          {item.device || 'Desktop'} · {item.os || 'Unknown'}
+                        </span>
+                        <br />
+                        <small style={{ color: '#617682', fontSize: '0.75rem' }}>
+                          {item.browser || 'Unknown'} {item.ip ? `(${item.ip})` : ''}
+                        </small>
+                      </td>
                       <td>{date(item.createdAt)}</td>
                       <td>
                         <span className={`admin-badge ${item.status}`}>{item.status}</span>
@@ -109,7 +123,7 @@ export function Leads() {
                 <div className="admin-empty">No enquiries match this filter.</div>
               )}
             </div>
-            <Pager page={page} total={data.total} size={20} onChange={setPage} />
+            <Pager page={page} total={data.total} size={10} onChange={setPage} />
           </>
         ) : (
           <p className="admin-loading">Loading enquiries…</p>
@@ -139,6 +153,22 @@ export function Leads() {
             <div>
               <dt>Consent</dt>
               <dd>{selected.consent ? 'Provided' : 'Not recorded'}</dd>
+            </div>
+            <div>
+              <dt>Device / OS</dt>
+              <dd>{selected.device || 'Desktop'} · {selected.os || 'Unknown'}</dd>
+            </div>
+            <div>
+              <dt>Browser</dt>
+              <dd>{selected.browser || 'Unknown'}</dd>
+            </div>
+            <div>
+              <dt>IP Address</dt>
+              <dd className="admin-mono">{selected.ip || '127.0.0.1'}</dd>
+            </div>
+            <div>
+              <dt>Submitted Date</dt>
+              <dd>{date(selected.createdAt)}</dd>
             </div>
           </dl>
           <h3>Project description</h3>

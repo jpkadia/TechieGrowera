@@ -1,6 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
-import { posts, caseStudies, type BlogPost, type CaseStudy } from '@/content/editorial';
+import { posts, portfolio, type BlogPost, type PortfolioItem } from '@/content/editorial';
+
 async function readPublished<T>(kind: string, fallback: T[]): Promise<T[]> {
   if (process.env.CMS_ENABLED !== 'true') return fallback;
   const base = process.env.API_BASE_URL;
@@ -23,6 +24,9 @@ async function readPublished<T>(kind: string, fallback: T[]): Promise<T[]> {
       console.warn(`[CMS] Invalid response structure for ${kind}, using fallback.`);
       return fallback;
     }
+    if (data.items.length === 0 && fallback.length > 0) {
+      return fallback;
+    }
     return data.items;
   } catch (err) {
     // If backend is sleeping / timing out on Render free tier, seamlessly serve the fallback
@@ -32,4 +36,4 @@ async function readPublished<T>(kind: string, fallback: T[]): Promise<T[]> {
 }
 // Request-scoped deduplication only. No stale cross-request content or draft fallback.
 export const getPosts = cache(() => readPublished<BlogPost>('blog', posts));
-export const getCaseStudies = cache(() => readPublished<CaseStudy>('case-studies', caseStudies));
+export const getPortfolio = cache(() => readPublished<PortfolioItem>('portfolio', portfolio));

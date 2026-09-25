@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowUpRight, Inbox, FileText, BriefcaseBusiness, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, Inbox, FileText, BriefcaseBusiness, ShieldCheck, MessageSquare, Users } from 'lucide-react';
 import { useAdminData, date, adminApi } from './api';
 import { AdminHeading, Notice, Pager } from './shared';
 type Log = {
@@ -56,8 +56,11 @@ export function Dashboard() {
     leads: number;
     newLeads: number;
     blog: number;
-    cases: number;
+    portfolio?: number;
+    cases?: number;
     sessions: number;
+    chats?: number;
+    visitors?: number;
     recent: Log[];
   }>('dashboard');
   return (
@@ -76,11 +79,13 @@ export function Dashboard() {
             <div className="admin-stats">
               {[
                 [data.newLeads, 'New enquiries', '/admin/leads', Inbox],
-                [data.blog, 'Published articles', '/admin/content/blog', FileText],
+                [data.chats ?? 0, 'Conversations', '/admin/chats', MessageSquare],
+                [data.visitors ?? 0, 'Total visitors', '/admin/analytics', Users],
+                [data.blog, 'Published blog posts', '/admin/content/blog', FileText],
                 [
-                  data.cases,
-                  'Published case studies',
-                  '/admin/content/case-studies',
+                  data.portfolio ?? data.cases ?? 0,
+                  'Published portfolio projects',
+                  '/admin/content/portfolio',
                   BriefcaseBusiness,
                 ],
                 [data.sessions, 'Active sessions', '/admin/logs', ShieldCheck],
@@ -113,7 +118,7 @@ export function Dashboard() {
                 </Link>
                 <Link className="admin-action" href="/admin/content/blog/new">
                   <div>
-                    <h3>Start a useful article</h3>
+                    <h3>Start a useful blog post</h3>
                     <p>Save a draft, review it, then publish.</p>
                   </div>
                   <ArrowUpRight />
@@ -129,7 +134,7 @@ export function Dashboard() {
                   Drafts stay private. Published URLs stay consistent. Your public pages and sitemap
                   update from published content.
                 </p>
-                <Link href="/admin/content/blog">Manage your journal →</Link>
+                <Link href="/admin/content/blog">Manage your blog →</Link>
               </section>
             </div>
             <section className="admin-panel">
@@ -183,7 +188,7 @@ export function Logs() {
         {data ? (
           <>
             <LogTable items={data.items} />
-            <Pager page={page} total={data.total} size={30} onChange={setPage} />
+            <Pager page={page} total={data.total} size={10} onChange={setPage} />
           </>
         ) : (
           <p className="admin-loading">Loading activity…</p>

@@ -5,11 +5,32 @@ import { getService } from '@/content/services';
 import { Breadcrumbs, CTA, JsonLd, TextLink } from '@/components/ui';
 import { absolute, pageMetadata } from '@/lib/site';
 import { EditorialParagraph } from '@/components/editorial-paragraph';
+import { getPostBoxTitle } from '@/content/editorial';
+export const revalidate = 300;
 export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const posts = await getPosts();
+  return posts.map((item) => ({ slug: item.slug }));
+}
+
+const slugAliases: Record<string, string> = {
+  'meta-ads-campaign': 'before-your-first-meta-ads-campaign',
+  'before-your-first-meta-ads-campaign': 'meta-ads-campaign',
+  'social-content-plan': 'building-a-useful-social-content-plan',
+  'building-a-useful-social-content-plan': 'social-content-plan',
+  'website-redesign-seo': 'website-redesign-seo-checklist',
+  'website-redesign-seo-checklist': 'website-redesign-seo',
+};
+
+function matchPost(posts: Awaited<ReturnType<typeof getPosts>>, slug: string) {
+  return posts.find((p) => p.slug === slug || p.slug === slugAliases[slug]);
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const posts = await getPosts();
-  const p = posts.find((p) => p.slug === slug);
+  const p = matchPost(posts, slug);
   if (!p) return {};
   const base = pageMetadata(p.seoTitle, p.metaDescription, p.canonicalPath);
   return {
@@ -26,8 +47,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function Post({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const posts = await getPosts();
-  const p = posts.find((p) => p.slug === slug);
+  const p = matchPost(posts, slug);
   if (!p) notFound();
+  const boxTitle = getPostBoxTitle(p);
   return (
     <>
       <section className="page-hero">
@@ -35,7 +57,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
           <Breadcrumbs
             items={[
               { label: 'Blog', href: '/blog' },
-              { label: p.shortTitle || p.seoTitle || p.title, href: `/blog/${p.slug}` },
+              { label: boxTitle, href: `/blog/${p.slug}` },
             ]}
           />
           <span className="eyebrow">{p.category.toUpperCase()}</span>
@@ -70,7 +92,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
           </div>
         </article>
         <aside>
-          <h2>In this article</h2>
+          <h2>In this post</h2>
           {p.sections.map((section, i) => (
             <a key={section.heading} href={`#section-${i}`}>
               {section.heading}

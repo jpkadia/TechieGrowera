@@ -18,10 +18,10 @@ export default async function Blog({ searchParams }: { searchParams: Promise<{ s
       <section className="page-hero">
         <div className="container">
           <Breadcrumbs items={[{ label: 'Blog', href: '/blog' }]} />
-          <span className="eyebrow">THE GROWERA JOURNAL</span>
+          <span className="eyebrow">TECHIE GROWERA BLOG</span>
           <h1>
             Web, creative &amp; growth
-            <br />insights.
+            <br />blog.
           </h1>
           <p className="intro">
             Practical thinking on the web, creative and digital growth decisions your business
@@ -30,8 +30,8 @@ export default async function Blog({ searchParams }: { searchParams: Promise<{ s
         </div>
       </section>
       <section className="section container">
-        {service && <p>Guides related to {service.name}. <Link href="/blog">View all articles</Link></p>}
-        {!filtered.length && <p>No articles are published for this service yet. <Link href="/blog">Explore all insights</Link>.</p>}
+        {service && <p>Guides related to {service.name}. <Link href="/blog">View all blog posts</Link></p>}
+        {!filtered.length && <p>No blog posts are published for this service yet. <Link href="/blog">Explore all blog posts</Link>.</p>}
         <div className="blog-grid">
           {filtered.map((p, i) => (
             <BlogCard key={p.slug} post={p} index={i} />

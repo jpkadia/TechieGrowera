@@ -2,16 +2,16 @@ import dotenv from 'dotenv';
 dotenv.config({ path: 'backend/.env', quiet: true });
 async function main() {
   const { connectDatabase } = await import('../backend/src/config/database');
-  const { BlogPost, CaseStudy } = await import('../backend/src/models/index');
+  const { BlogPost, PortfolioItem } = await import('../backend/src/models/index');
   const { AdminAuditLog, AdminSession } = await import('../backend/src/models/admin');
-  const { postDraft, caseDraft } = await import('../backend/src/utils/editorial-schema');
-  const { posts, caseStudies } = await import('../frontend/src/content/editorial');
+  const { postDraft, portfolioDraft } = await import('../backend/src/utils/editorial-schema');
+  const { posts, portfolio } = await import('../frontend/src/content/editorial');
   const mongoose = (await import('mongoose')).default;
   await connectDatabase();
   try {
     await Promise.all([
       BlogPost.createIndexes(),
-      CaseStudy.createIndexes(),
+      PortfolioItem.createIndexes(),
       AdminSession.createIndexes(),
       AdminAuditLog.createIndexes(),
     ]);
@@ -36,10 +36,10 @@ async function main() {
       );
       inserted += result.upsertedCount;
     }
-    for (const item of caseStudies) {
+    for (const item of portfolio) {
       const { updatedAt, ...editable } = item;
-      const draft = caseDraft.parse(editable);
-      const result = await CaseStudy.updateOne(
+      const draft = portfolioDraft.parse(editable);
+      const result = await PortfolioItem.updateOne(
         { slug: item.slug },
         {
           $setOnInsert: {

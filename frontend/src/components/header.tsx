@@ -35,6 +35,8 @@ export function Header() {
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
     setOpen(false);
+    setHidden(false);
+    setScrolled(false);
   }
 
   useEffect(() => {
@@ -162,15 +164,16 @@ export function Header() {
             onClick={() => setOpen(false)}
           >
             <Image
-              style={{ height: 'auto' }}
+              style={{ width: 'auto', height: 'auto' }}
               src="/brand/mark.svg"
               width={43}
               height={39}
               alt=""
-              priority
             />
-            <span>
-              Techie <strong>Growera</strong>
+            <span className="brand-info">
+              <span className="brand-name">
+                Techie <strong>Growera</strong>
+              </span>
               <small>WEB · CREATIVE · GROWTH</small>
             </span>
           </Link>
@@ -188,12 +191,11 @@ export function Header() {
                 onClick={() => setOpen(false)}
               >
                 <Image
-                  style={{ height: 'auto', flexShrink: 0 }}
+                  style={{ width: 'auto', height: 'auto', flexShrink: 0 }}
                   src="/brand/mark.svg"
                   width={40}
                   height={36}
                   alt=""
-                  priority
                 />
                 <span className="drawer-brand-info">
                   <span className="drawer-brand-title">
@@ -218,7 +220,8 @@ export function Header() {
                   key={href}
                   href={href}
                   aria-current={
-                    pathname === href || (href !== '/' && pathname.startsWith(href + '/'))
+                    pathname === href ||
+                    (href !== '/' && pathname.startsWith(href + '/'))
                       ? 'page'
                       : undefined
                   }

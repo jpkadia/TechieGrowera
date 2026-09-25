@@ -39,16 +39,20 @@ export function Pager({
   size: number;
   onChange: (page: number) => void;
 }) {
+  const totalPages = Math.max(1, Math.ceil(total / size));
+  const startItem = total === 0 ? 0 : (page - 1) * size + 1;
+  const endItem = Math.min(page * size, total);
+
   return (
     <div className="admin-pager">
       <span>
-        {total} records · Page {page} of {Math.max(1, Math.ceil(total / size))}
+        Showing {startItem}–{endItem} of {total} records · Page {page} of {totalPages}
       </span>
       <div>
         <button disabled={page <= 1} onClick={() => onChange(page - 1)}>
           Previous
         </button>
-        <button disabled={page * size >= total} onClick={() => onChange(page + 1)}>
+        <button disabled={page >= totalPages} onClick={() => onChange(page + 1)}>
           Next
         </button>
       </div>

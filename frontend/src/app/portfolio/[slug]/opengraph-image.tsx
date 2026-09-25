@@ -1,13 +1,15 @@
 import { socialImage } from '@/lib/social-image';
-import { getCaseStudies } from '@/lib/published-content';
+import { getPortfolio } from '@/lib/published-content';
 import { notFound } from 'next/navigation';
-export const alt = 'Techie Growera case-studies';
+
+export const alt = 'Techie Growera portfolio';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
+
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const caseStudies = await getCaseStudies();
-  const s = caseStudies.find((s) => s.slug === slug);
-  if (!s) notFound();
-  return socialImage(s.title);
+  const portfolio = await getPortfolio();
+  const project = portfolio.find((item) => item.slug === slug);
+  if (!project) notFound();
+  return socialImage(project.title);
 }

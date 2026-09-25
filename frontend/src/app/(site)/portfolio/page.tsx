@@ -1,14 +1,16 @@
 import { Breadcrumbs, CTA } from '@/components/ui';
 import { WorkCard } from '@/components/cards';
-import { getCaseStudies } from '@/lib/published-content';
+import { getPortfolio } from '@/lib/published-content';
 import { pageMetadata } from '@/lib/site';
+
 export const metadata = pageMetadata(
   'Portfolio & Client Work',
-  'Explore Techie Growera’s featured client case studies and production web applications across healthcare, AI, and digital commerce.',
+  'Explore Techie Growera’s featured client portfolio projects and production web applications across healthcare, AI, and digital commerce.',
   '/portfolio',
 );
+
 export default async function Portfolio() {
-  const caseStudies = await getCaseStudies();
+  const portfolio = await getPortfolio();
   return (
     <>
       <section className="page-hero">
@@ -20,7 +22,7 @@ export default async function Portfolio() {
             <br />portfolio.
           </h1>
           <p className="intro">
-            Browse our featured client case studies and digital applications. Open each case study to explore
+            Browse our featured client portfolio projects and digital applications. Open each project to explore
             the engineering architecture, design systems, and measured results. Every solution is custom-scoped
             to drive tangible growth for your business.
           </p>
@@ -28,8 +30,8 @@ export default async function Portfolio() {
       </section>
       <section className="section container">
         <div className="work-grid">
-          {caseStudies.map((s) => (
-            <WorkCard study={s} key={s.slug} />
+          {portfolio.map((item) => (
+            <WorkCard project={item} key={item.slug} />
           ))}
         </div>
       </section>

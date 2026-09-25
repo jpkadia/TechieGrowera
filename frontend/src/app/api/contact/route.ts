@@ -38,18 +38,32 @@ export async function POST(request: NextRequest) {
     } catch {
       return respond('Invalid JSON request.', 400);
     }
-    // Vercel overwrites this platform header. Never trust arbitrary X-Forwarded-For.
-    const ip =
-      process.env.VERCEL === '1'
-        ? (request.headers.get('x-vercel-forwarded-for') || '').split(',')[0].trim()
-        : '127.0.0.1';
-    if (!isIP(ip)) return respond('Unable to validate this request.', 400);
+    // Extract client IP supporting Vercel, Render/proxies, and local dev
+    const forwarded = request.headers.get('x-forwarded-for');
+    const realIp = request.headers.get('x-real-ip');
+    const vercelIp = request.headers.get('x-vercel-forwarded-for');
+
+    let candidateIp = '';
+    if (process.env.VERCEL === '1' && vercelIp) {
+      candidateIp = vercelIp.split(',')[0].trim();
+    } else if (forwarded) {
+      candidateIp = forwarded.split(',')[0].trim();
+    } else if (realIp) {
+      candidateIp = realIp.trim();
+    } else {
+      candidateIp = '127.0.0.1';
+    }
+
+    const ip = isIP(candidateIp) ? candidateIp : '127.0.0.1';
+    const userAgent = request.headers.get('user-agent') || '';
+
     const upstream = await fetch(new URL('/api/contact', api), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-proxy-secret': secret,
         'x-client-ip': ip,
+        'user-agent': userAgent,
       },
       body,
       cache: 'no-store',
@@ -61,7 +75,8 @@ export async function POST(request: NextRequest) {
     const retry = upstream.headers.get('Retry-After');
     if (retry) headers['Retry-After'] = retry;
     return NextResponse.json(data, { status: upstream.status, headers });
-  } catch {
+  } catch (error) {
+    console.error('[ContactProxy] Upstream error:', error instanceof Error ? error.message : error);
     return respond('We could not confirm delivery. Please try again later.', 503);
   }
 }

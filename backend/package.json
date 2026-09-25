@@ -11,19 +11,20 @@
     "db:indexes": "tsx src/scripts/indexes.ts"
   },
   "dependencies": {
-    "express": "^5.1.0",
-    "mongoose": "^8.19.0",
-    "helmet": "^8.1.0",
+    "@google/genai": "^2.24.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
-    "zod": "^4.1.0",
-    "dotenv": "^17.2.0"
+    "helmet": "^8.1.0",
+    "mongoose": "^8.19.0",
+    "zod": "^4.1.0"
   },
   "devDependencies": {
-    "typescript": "^5.9.0",
-    "tsx": "^4.20.0",
-    "@types/node": "^22.0.0",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.0",
-    "@types/cors": "^2.8.19"
+    "@types/node": "^22.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
   }
 }

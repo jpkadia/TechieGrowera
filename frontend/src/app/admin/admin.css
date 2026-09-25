@@ -14,7 +14,7 @@
   font: inherit;
 }
 .admin-root button,
-.admin-root a.admin-primary {
+.admin-root .admin-btn {
   border: 1px solid #cedce1;
   background: #fff;
   border-radius: 6px;
@@ -25,8 +25,12 @@
   gap: 10px;
   font-weight: 600;
   font-size: 14px;
+  color: var(--admin-ink);
+  text-decoration: none;
+  cursor: pointer;
 }
-.admin-root button:hover {
+.admin-root button:hover,
+.admin-root .admin-btn:hover {
   background: #edf6f5;
   border-color: #9cbfba;
 }
@@ -34,13 +38,30 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
-.admin-root .admin-primary {
-  background: #087d78;
-  color: white;
-  border-color: #087d78;
+.admin-root .admin-primary,
+.admin-root a.admin-primary,
+.admin-root button.admin-primary {
+  border: 1px solid #087d78 !important;
+  background: #087d78 !important;
+  color: #ffffff !important;
+  border-radius: 6px;
+  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
-.admin-root .admin-primary:hover {
-  background: #096d68;
+.admin-root .admin-primary:hover,
+.admin-root a.admin-primary:hover,
+.admin-root button.admin-primary:hover {
+  background: #096d68 !important;
+  border-color: #096d68 !important;
+  color: #ffffff !important;
 }
 .admin-root h1 {
   font-size: 32px;
@@ -123,19 +144,40 @@
   z-index: 40;
 }
 .admin-wordmark {
-  font-size: 21px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 19px;
   font-weight: 750;
-  letter-spacing: -0.06em;
-  padding: 0 12px;
+  letter-spacing: -0.05em;
+  padding: 0 4px;
+  text-decoration: none;
+  color: var(--admin-ink);
+}
+.admin-wordmark .brand-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.15;
+  min-width: 0;
+}
+.admin-wordmark .brand-name {
+  font-size: 17px;
+  font-weight: 750;
+  letter-spacing: -0.05em;
+  color: var(--admin-ink);
 }
 .admin-wordmark strong,
 .admin-login-brand strong {
   color: #07847e;
+  font-weight: 750;
 }
 .admin-wordmark small {
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  margin-top: 8px;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  margin-top: 4px;
+  color: #79909d;
+  font-weight: 700;
 }
 .admin-nav-label {
   font-size: 10px;
@@ -345,40 +387,93 @@
 }
 .admin-table-wrap {
   overflow-x: auto;
+  border-radius: 8px;
 }
-.admin-table-wrap table {
+.admin-table-wrap table,
+.admin-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
   font-size: 13px;
   white-space: normal;
 }
-.admin-table-wrap th {
+.admin-table-wrap th,
+.admin-table th {
   background: #fafcfd;
-  padding: 15px 22px;
+  padding: 14px 20px;
   font-size: 11px;
-  font-weight: 650;
+  font-weight: 700;
   color: #66808d;
   border-bottom: 1px solid var(--admin-border);
   white-space: nowrap;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
-.admin-table-wrap td {
-  padding: 18px 22px;
+.admin-table-wrap td,
+.admin-table td {
+  padding: 16px 20px;
   border-bottom: 1px solid #e9eef1;
   vertical-align: middle;
   min-width: 100px;
   overflow-wrap: anywhere;
 }
-.admin-table-wrap td strong {
+.admin-table-wrap td strong,
+.admin-table td strong {
   display: block;
   font-size: 14px;
 }
-.admin-table-wrap td small {
+.admin-table-wrap td small,
+.admin-table td small {
   margin-top: 5px;
 }
-.admin-table-wrap td a {
+.admin-table-wrap td a,
+.admin-table td a {
   color: #067c74;
   font-weight: 600;
+}
+.admin-table tr.cursor-pointer {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.admin-table tr.cursor-pointer:hover td {
+  background: #f7fafb;
+}
+.admin-table tr.is-selected td {
+  background: #edf7f6 !important;
+  border-color: #d0e7e4;
+}
+.admin-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.admin-split.has-drawer {
+  grid-template-columns: minmax(0, 1.4fr) minmax(380px, 1fr);
+}
+@media (max-width: 1150px) {
+  .admin-split.has-drawer {
+    grid-template-columns: 1fr;
+  }
+}
+.admin-detail {
+  background: #ffffff;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(18, 55, 73, 0.06);
+}
+.admin-chat-bubble-user {
+  background: #007e83 !important;
+  color: #ffffff !important;
+}
+.admin-chat-bubble-user p,
+.admin-chat-bubble-user span,
+.admin-chat-bubble-user * {
+  color: #ffffff !important;
+}
+.admin-chat-bubble-assistant p {
+  color: #092d49 !important;
 }
 .admin-mono {
   font-family: monospace;
@@ -465,18 +560,30 @@
   background: radial-gradient(ellipse at top, #e3f3ef, transparent 65%), #f5f8fa;
 }
 .admin-login-brand {
-  font-size: 25px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+  text-decoration: none;
+}
+.admin-login-brand .brand-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.15;
+}
+.admin-login-brand .brand-name {
+  font-size: 24px;
   letter-spacing: -0.055em;
   font-weight: 750;
-  margin-bottom: 30px;
+  color: #163747;
 }
-.admin-login-brand > span {
-  display: block;
-  font-size: 10px;
-  letter-spacing: 0.25em;
-  text-align: center;
+.admin-login-brand .brand-sub {
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
   color: #718894;
   margin-top: 5px;
+  font-weight: 700;
 }
 .admin-login-card {
   background: white;

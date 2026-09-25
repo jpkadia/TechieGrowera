@@ -211,7 +211,7 @@ export function ContentEditor({ kind, id }: { kind: string; id: string }) {
   return (
     <>
       <AdminHeading
-        eyebrow={kind === 'blog' ? 'JOURNAL EDITOR' : 'CASE STUDY EDITOR'}
+        eyebrow={kind === 'blog' ? 'BLOG EDITOR' : 'PORTFOLIO EDITOR'}
         title={id === 'new' ? 'Make something useful.' : 'Refine your story.'}
         text="Use clear, original content. Your changes stay private until you publish."
       >
@@ -343,12 +343,12 @@ export function ContentEditor({ kind, id }: { kind: string; id: string }) {
                     />
                     This is a fictional concept / demo project
                   </label>
-                  <small>Demo case studies are labelled and excluded from search indexing.</small>
+                  <small>Demo portfolio projects are labelled and excluded from search indexing.</small>
                 </>
               )}
             </section>
             <section className="admin-panel admin-form-section">
-              <h2>{kind === 'blog' ? 'Article sections' : 'The project story'}</h2>
+              <h2>{kind === 'blog' ? 'Blog sections' : 'The project story'}</h2>
               {kind === 'blog' ? (
                 <>
                   {draft.sections?.map((section, index) => (

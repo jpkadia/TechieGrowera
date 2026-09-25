@@ -13,6 +13,7 @@ const schema = z.object({
   ADMIN_EMAIL: z.string().email().or(z.literal('')).default(''),
   ADMIN_PASSWORD: z.string().default(''),
   ADMIN_SESSION_SECRET: z.string().default(''),
+  GEMINI_API_KEY: z.string().default(''),
 });
 export const env = schema.parse(process.env);
 if (

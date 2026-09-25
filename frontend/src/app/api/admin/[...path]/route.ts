@@ -11,7 +11,7 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
       { status, headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow' } },
     );
   if (
-    !/^(login|logout|session|sessions\/revoke|dashboard|logs|leads(?:\/[a-f0-9]{24})?|content\/(?:blog|case-studies)(?:\/[a-f0-9]{24}(?:\/(?:publish|archive|restore))?)?)$/.test(
+    !/^(login|logout|session|sessions\/revoke|dashboard|logs|analytics|chats(?:\/[a-f0-9]{24})?|leads(?:\/[a-f0-9]{24})?|content\/(?:blog|portfolio)(?:\/[a-f0-9]{24}(?:\/(?:publish|archive|restore))?)?)$/.test(
       route,
     )
   )
@@ -23,7 +23,10 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
       request.headers.get('x-admin-request') !== '1'
     )
       return json('Request origin is not allowed.', 403);
-    if (!request.headers.get('content-type')?.startsWith('application/json'))
+    if (
+      ['POST', 'PUT', 'PATCH'].includes(request.method) &&
+      !request.headers.get('content-type')?.startsWith('application/json')
+    )
       return json('JSON is required.', 415);
   }
   const base = process.env.API_BASE_URL;
@@ -57,14 +60,26 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
         return json('Invalid JSON.', 400);
       }
     }
-    const ip =
-      process.env.VERCEL === '1'
-        ? (request.headers.get('x-vercel-forwarded-for') || '').split(',')[0].trim()
-        : '127.0.0.1';
+    // Extract client IP supporting Vercel, Render/proxies, and local dev
+    const forwarded = request.headers.get('x-forwarded-for');
+    const realIp = request.headers.get('x-real-ip');
+    const vercelIp = request.headers.get('x-vercel-forwarded-for');
+
+    let candidateIp = '';
+    if (process.env.VERCEL === '1' && vercelIp) {
+      candidateIp = vercelIp.split(',')[0].trim();
+    } else if (forwarded) {
+      candidateIp = forwarded.split(',')[0].trim();
+    } else if (realIp) {
+      candidateIp = realIp.trim();
+    } else {
+      candidateIp = '127.0.0.1';
+    }
+
+    const ip = isIP(candidateIp) ? candidateIp : '127.0.0.1';
     if (!isIP(ip)) return json('Unable to validate request.', 400);
     const url = new URL(`/api/admin/${route}`, base);
-    for (const key of ['page', 'status']) {
-      const value = request.nextUrl.searchParams.get(key);
+    for (const [key, value] of request.nextUrl.searchParams.entries()) {
       if (value) url.searchParams.set(key, value);
     }
     const upstream = await fetch(url, {
@@ -106,7 +121,8 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
         maxAge: 0,
       });
     return result;
-  } catch {
+  } catch (error) {
+    console.error('[AdminProxy] Upstream error:', error instanceof Error ? error.message : error);
     return json('Admin service is temporarily unavailable. Please retry.', 503);
   }
 }
@@ -114,3 +130,4 @@ export const GET = proxy;
 export const POST = proxy;
 export const PUT = proxy;
 export const PATCH = proxy;
+export const DELETE = proxy;

@@ -1,10 +1,13 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState,useEffect } from 'react';
 import {
   LayoutDashboard,
   Inbox,
+  MessageSquare,
+  Activity,
   FileText,
   BriefcaseBusiness,
   History,
@@ -17,8 +20,10 @@ import { adminApi } from './api';
 const links = [
   ['/admin', 'Overview', LayoutDashboard],
   ['/admin/leads', 'Enquiries', Inbox],
-  ['/admin/content/blog', 'Journal', FileText],
-  ['/admin/content/case-studies', 'Case studies', BriefcaseBusiness],
+  ['/admin/chats', 'Conversations', MessageSquare],
+  ['/admin/analytics', 'Visitors & Traffic', Activity],
+  ['/admin/content/blog', 'Blog', FileText],
+  ['/admin/content/portfolio', 'Portfolio', BriefcaseBusiness],
   ['/admin/logs', 'Activity log', History],
 ] as const;
 export function AdminShell({ email, children }: { email: string; children: React.ReactNode }) {
@@ -40,8 +45,19 @@ export function AdminShell({ email, children }: { email: string; children: React
     <div className="admin-workspace">
       <aside id="admin-sidebar" className={`admin-sidebar ${open ? 'open' : ''}`}>
         <Link href="/admin" className="admin-wordmark">
-          Techie <strong>Growera</strong>
-          <small>ADMIN WORKSPACE</small>
+          <Image
+            src="/brand/mark.svg"
+            width={34}
+            height={31}
+            alt="Techie Growera"
+            style={{ width: 'auto', height: 'auto', flexShrink: 0 }}
+          />
+          <span className="brand-info">
+            <span className="brand-name">
+              Techie <strong>Growera</strong>
+            </span>
+            <small>ADMIN WORKSPACE</small>
+          </span>
         </Link>
         <span className="admin-nav-label">WORKSPACE</span>
         <nav aria-label="Admin navigation">

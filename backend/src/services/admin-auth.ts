@@ -42,7 +42,7 @@ export async function audit(
     outcome,
     ipHash: ipHash(req),
     detail,
-    expiresAt: new Date(Date.now() + 180 * 86400000),
+    expiresAt: new Date(Date.now() + 60 * 86400000),
   });
 }
 export async function loginLimit(req: Request, res: Response, next: NextFunction) {

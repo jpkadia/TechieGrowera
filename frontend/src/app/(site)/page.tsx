@@ -4,7 +4,7 @@ import { ButtonLink, SectionHeading, CTA, FAQList, TextLink } from '@/components
 import { ServiceCards } from '@/components/cards';
 import { HomepageCards } from '@/components/homepage-cards';
 import { generalFaqs } from '@/content/services';
-import { caseStudies, posts } from '@/content/editorial';
+import { portfolio, posts } from '@/content/editorial';
 import { pageMetadata } from '@/lib/site';
 export const metadata = pageMetadata(
   'Web Development, SEO & Digital Marketing Agency',
@@ -20,7 +20,6 @@ export default function Home() {
         <div className="container hero-grid">
           <div className="hero-copy">
             <span className="eyebrow">
-              <span />
               SCALING DIGITAL PRESENCE WITH INTENT
             </span>
             <h1>
@@ -42,9 +41,6 @@ export default function Home() {
                 Explore our services
               </ButtonLink>
             </div>
-            <div className="hero-note">
-              <span className="note-line" />Scaling digital presence with intent. Thoughtful execution. Lasting value.
-            </div>
           </div>
           <div className="hero-art" aria-label="Techie Growera: web, creative and growth">
             <div className="art-topline">
@@ -55,12 +51,11 @@ export default function Home() {
               <div className="orbit orbit-one" />
               <div className="orbit orbit-two" />
               <Image
-                style={{ height: 'auto' }}
+                style={{ width: 'auto', height: 'auto' }}
                 src="/brand/mark.svg"
                 alt="Techie Growera growth monogram"
                 width={325}
                 height={285}
-                priority
                 className="hero-mark"
               />
               <span className="orbit-dot" />
@@ -287,10 +282,10 @@ export default function Home() {
           />
           <TextLink href="/portfolio">View our work</TextLink>
         </div>
-        <HomepageCards kind="case-studies" initialItems={caseStudies.slice(0, 2)} />
-        <div className="case-link">
+        <HomepageCards kind="portfolio" initialItems={portfolio.slice(0, 2)} />
+        <div className="portfolio-link">
           <p>Curious about the thinking behind the work?</p>
-          <TextLink href="/case-studies">Explore project case studies</TextLink>
+          <TextLink href="/portfolio">Explore our portfolio</TextLink>
         </div>
       </section>
       <section className="industries">

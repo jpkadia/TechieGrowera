@@ -11,9 +11,11 @@ export function Footer() {
       <div className="container footer-grid">
         <div className="footer-brand">
           <Link href="/" className="brand">
-            <Image style={{ height: 'auto' }} src="/brand/mark.svg" width={42} height={38} alt="" />
-            <span>
-              Techie <strong>Growera</strong>
+            <Image style={{ width: 'auto', height: 'auto' }} src="/brand/mark.svg" width={42} height={38} alt="" />
+            <span className="brand-info">
+              <span className="brand-name">
+                Techie <strong>Growera</strong>
+              </span>
             </span>
           </Link>
           <p>Scaling digital presence with intent. Web development, creative and measurable growth.</p>
@@ -39,9 +41,8 @@ export function Footer() {
           <h2>Explore</h2>
           {[
             ['About us', '/about'],
-            ['Our work', '/portfolio'],
-            ['Case studies', '/case-studies'],
-            ['Insights', '/blog'],
+            ['Portfolio', '/portfolio'],
+            ['Blog', '/blog'],
             ['Contact', '/contact'],
           ].map(([title, href]) => (
             <Link key={href} href={href}>

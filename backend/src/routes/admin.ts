@@ -3,7 +3,7 @@ import { z } from 'zod';
 import mongoose from 'mongoose';
 import { env } from '../config/env.js';
 import { authenticateProxy } from '../middleware/security.js';
-import { BlogPost, CaseStudy, ContactLead } from '../models/index.js';
+import { BlogPost, PortfolioItem, ContactLead, ChatSession, VisitorLog } from '../models/index.js';
 import { AdminAuditLog, AdminSession } from '../models/admin.js';
 import {
   audit,
@@ -46,18 +46,21 @@ adminRouter.post('/sessions/revoke', async (req, res) => {
   res.json({ ok: true });
 });
 adminRouter.get('/dashboard', async (_req, res) => {
-  const [leads, newLeads, blog, cases, sessions, recent] = await Promise.all([
+  const cutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+  const [leads, newLeads, blog, portfolio, sessions, recent, chats, visitors] = await Promise.all([
     ContactLead.countDocuments(),
     ContactLead.countDocuments({ status: 'new' }),
     BlogPost.countDocuments({ status: 'published' }),
-    CaseStudy.countDocuments({ status: 'published' }),
+    PortfolioItem.countDocuments({ status: 'published' }),
     AdminSession.countDocuments({
       expiresAt: { $gt: new Date() },
       lastSeenAt: { $gt: new Date(Date.now() - 30 * 60000) },
     }),
-    AdminAuditLog.find().sort({ createdAt: -1 }).limit(8).lean(),
+    AdminAuditLog.find({ createdAt: { $gte: cutoff } }).sort({ createdAt: -1 }).limit(8).lean(),
+    ChatSession.countDocuments({ lastActiveAt: { $gte: cutoff } }),
+    VisitorLog.countDocuments({ lastSeenAt: { $gte: cutoff } }),
   ]);
-  res.json({ ok: true, leads, newLeads, blog, cases, sessions, recent });
+  res.json({ ok: true, leads, newLeads, blog, portfolio, cases: portfolio, sessions, recent, chats, visitors });
 });
 function pagination(query: Record<string, unknown>) {
   return z
@@ -77,8 +80,8 @@ adminRouter.get('/leads', async (req, res) => {
   const [items, total] = await Promise.all([
     ContactLead.find(filter)
       .sort({ createdAt: -1 })
-      .skip((q.data.page - 1) * 20)
-      .limit(20)
+      .skip((q.data.page - 1) * 10)
+      .limit(10)
       .lean(),
     ContactLead.countDocuments(filter),
   ]);
@@ -111,7 +114,7 @@ adminRouter.patch('/leads/:id', async (req, res) => {
           target: String(item._id),
           outcome: 'success',
           detail: `${body.data.previousStatus} → ${body.data.status}`,
-          expiresAt: new Date(Date.now() + 180 * 86400000),
+          expiresAt: new Date(Date.now() + 60 * 86400000),
         },
       ],
       { session },
@@ -126,45 +129,57 @@ adminRouter.patch('/leads/:id', async (req, res) => {
 adminRouter.get('/logs', async (req, res) => {
   const q = pagination(req.query);
   if (!q.success) return res.status(400).json({ ok: false, message: 'Invalid page.' });
+  const cutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+  const filter = { createdAt: { $gte: cutoff } };
   const [items, total] = await Promise.all([
-    AdminAuditLog.find()
+    AdminAuditLog.find(filter)
       .sort({ createdAt: -1 })
-      .skip((q.data.page - 1) * 30)
-      .limit(30)
+      .skip((q.data.page - 1) * 10)
+      .limit(10)
       .lean(),
-    AdminAuditLog.countDocuments(),
+    AdminAuditLog.countDocuments(filter),
   ]);
   res.json({ ok: true, items, total, page: q.data.page });
 });
 adminRouter.param('kind', (req, res, next, kind) => {
-  if (!['blog', 'case-studies'].includes(kind))
+  if (!['blog', 'portfolio'].includes(kind))
     return res.status(404).json({ ok: false, message: 'Content type not found.' });
   next();
 });
 adminRouter.get('/content/:kind', async (req, res) => {
-  const Model = req.params.kind === 'blog' ? BlogPost : CaseStudy;
+  const Model = req.params.kind === 'blog' ? BlogPost : PortfolioItem;
   const q = pagination(req.query);
   if (!q.success) return res.status(400).json({ ok: false, message: 'Invalid filters.' });
   const filter = q.data.status === 'all' ? {} : { status: q.data.status };
   const [items, total] = await Promise.all([
     Model.find(filter)
-      .select('slug status revision draft.title updatedAt everPublished')
+      .select('slug status revision draft title projectName updatedAt everPublished published')
       .sort({ updatedAt: -1 })
-      .skip((q.data.page - 1) * 20)
-      .limit(20)
+      .skip((q.data.page - 1) * 10)
+      .limit(10)
       .lean(),
     Model.countDocuments(filter),
   ]);
-  res.json({ ok: true, items, total, page: q.data.page });
+  const formattedItems = items.map((item: any) => ({
+    ...item,
+    draft: item.draft || {
+      title: item.title || item.projectName || item.published?.title || item.slug,
+      slug: item.slug,
+    },
+  }));
+  res.json({ ok: true, items: formattedItems, total, page: q.data.page });
 });
 adminRouter.get('/content/:kind/:id', async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id))
     return res.status(404).json({ ok: false, message: 'Content not found.' });
-  const Model = req.params.kind === 'blog' ? BlogPost : CaseStudy;
+  const Model = req.params.kind === 'blog' ? BlogPost : PortfolioItem;
   const item = await Model.findById(req.params.id).lean();
-  return res
-    .status(item ? 200 : 404)
-    .json({ ok: !!item, item, message: item ? undefined : 'Content not found.' });
+  if (!item) return res.status(404).json({ ok: false, message: 'Content not found.' });
+  const normalizedItem = {
+    ...item,
+    draft: (item as any).draft || (item as any).published || item,
+  };
+  return res.status(200).json({ ok: true, item: normalizedItem });
 });
 adminRouter.post('/content/:kind', async (req, res) => {
   const body = saveBody(String(req.params.kind)).safeParse(req.body);
@@ -173,7 +188,7 @@ adminRouter.post('/content/:kind', async (req, res) => {
       ok: false,
       message: body.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
     });
-  const Model = req.params.kind === 'blog' ? BlogPost : CaseStudy;
+  const Model = req.params.kind === 'blog' ? BlogPost : PortfolioItem;
   try {
     let id = '';
     await mongoose.connection.transaction(async (session) => {
@@ -198,7 +213,7 @@ adminRouter.post('/content/:kind', async (req, res) => {
             action: 'create_draft',
             target: `${req.params.kind}/${id}`,
             outcome: 'success',
-            expiresAt: new Date(Date.now() + 180 * 86400000),
+            expiresAt: new Date(Date.now() + 60 * 86400000),
           },
         ],
         { session },
@@ -220,7 +235,7 @@ adminRouter.put('/content/:kind/:id', async (req, res) => {
         ? 'Invalid revision.'
         : body.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
     });
-  const Model = req.params.kind === 'blog' ? BlogPost : CaseStudy;
+  const Model = req.params.kind === 'blog' ? BlogPost : PortfolioItem;
   try {
     let result: Record<string, unknown> | null = null;
     await mongoose.connection.transaction(async (session) => {
@@ -243,7 +258,7 @@ adminRouter.put('/content/:kind/:id', async (req, res) => {
             target: `${req.params.kind}/${current._id}`,
             outcome: 'success',
             detail: `Revision ${current.revision}`,
-            expiresAt: new Date(Date.now() + 180 * 86400000),
+            expiresAt: new Date(Date.now() + 60 * 86400000),
           },
         ],
         { session },
@@ -269,7 +284,7 @@ adminRouter.post('/content/:kind/:id/:action', async (req, res) => {
   const body = revisionBody.safeParse(req.body);
   if (!body.success || !mongoose.isValidObjectId(req.params.id))
     return res.status(422).json({ ok: false, message: 'Invalid revision.' });
-  const Model = req.params.kind === 'blog' ? BlogPost : CaseStudy;
+  const Model = req.params.kind === 'blog' ? BlogPost : PortfolioItem;
   let updated = false;
   await mongoose.connection.transaction(async (session) => {
     const item = await Model.findById(req.params.id).session(session);
@@ -312,7 +327,7 @@ adminRouter.post('/content/:kind/:id/:action', async (req, res) => {
           target: `${req.params.kind}/${item._id}`,
           outcome: 'success',
           detail: `Revision ${item.revision}`,
-          expiresAt: new Date(Date.now() + 180 * 86400000),
+          expiresAt: new Date(Date.now() + 60 * 86400000),
         },
       ],
       { session },
@@ -324,3 +339,138 @@ adminRouter.post('/content/:kind/:id/:action', async (req, res) => {
     message: updated ? 'Content status updated.' : 'Content changed. Reload and try again.',
   });
 });
+
+// Admin: List all chat sessions (filtered to 60 days, paginated to 10 per page)
+adminRouter.get('/chats', async (req, res) => {
+  const page = Math.max(1, parseInt(String(req.query.page || '1'), 10));
+  const limit = 10;
+  const skip = (page - 1) * limit;
+  const cutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+  const filter = { lastActiveAt: { $gte: cutoff } };
+
+  const [total, sessions] = await Promise.all([
+    ChatSession.countDocuments(filter),
+    ChatSession.find(filter)
+      .sort({ lastActiveAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select('_id sessionId ip os browser device lastActiveAt createdAt messages')
+      .lean(),
+  ]);
+
+  const items = sessions.map((s) => ({
+    _id: s._id,
+    sessionId: s.sessionId,
+    ip: s.ip || 'Unknown',
+    os: s.os || 'Unknown',
+    browser: s.browser || 'Unknown',
+    device: s.device || 'Desktop',
+    messageCount: s.messages?.length || 0,
+    lastMessage: s.messages?.[s.messages.length - 1]?.content?.slice(0, 120) || '',
+    lastActiveAt: s.lastActiveAt,
+    createdAt: s.createdAt,
+  }));
+
+  res.json({
+    ok: true,
+    sessions: items,
+    total,
+    page,
+    pages: Math.ceil(total / limit) || 1,
+  });
+});
+
+// Admin: Get single chat session with full transcript
+adminRouter.get('/chats/:id', async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ ok: false, message: 'Invalid ID.' });
+  }
+  const session = await ChatSession.findById(req.params.id).lean();
+  if (!session) {
+    return res.status(404).json({ ok: false, message: 'Conversation not found.' });
+  }
+  res.json({ ok: true, session });
+});
+
+// Admin: Delete chat session from database permanently
+adminRouter.delete('/chats/:id', async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ ok: false, message: 'Invalid ID.' });
+  }
+  const deleted = await ChatSession.findByIdAndDelete(req.params.id);
+  if (!deleted) {
+    return res.status(404).json({ ok: false, message: 'Conversation not found.' });
+  }
+  await audit(req, 'delete_chat', `chat/${req.params.id}`);
+  res.json({ ok: true, message: 'Conversation deleted successfully.' });
+});
+
+// Admin: Aggregated visitor traffic analytics (filtered to 60 days, paginated to 10 per page)
+adminRouter.get('/analytics', async (req, res) => {
+  const page = Math.max(1, parseInt(String(req.query.page || '1'), 10));
+  const limit = 10;
+  const skip = (page - 1) * limit;
+  const cutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+  const filter = { lastSeenAt: { $gte: cutoff } };
+
+  const [totalVisitors, totalChats, recentVisitors, osStats, browserStats, deviceStats] =
+    await Promise.all([
+      VisitorLog.countDocuments(filter),
+      ChatSession.countDocuments({ lastActiveAt: { $gte: cutoff } }),
+      VisitorLog.find(filter).sort({ lastSeenAt: -1 }).skip(skip).limit(limit).lean(),
+      VisitorLog.aggregate([
+        { $match: filter },
+        { $group: { _id: '$os', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 6 },
+      ]),
+      VisitorLog.aggregate([
+        { $match: filter },
+        { $group: { _id: '$browser', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 6 },
+      ]),
+      VisitorLog.aggregate([
+        { $match: filter },
+        { $group: { _id: '$device', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 6 },
+      ]),
+    ]);
+
+  const pageviewsAgg = await VisitorLog.aggregate([
+    { $match: filter },
+    { $project: { pageCount: { $size: '$pages' } } },
+    { $group: { _id: null, total: { $sum: '$pageCount' } } },
+  ]);
+  const totalPageViews = pageviewsAgg[0]?.total || 0;
+
+  res.json({
+    ok: true,
+    stats: {
+      totalVisitors,
+      totalPageViews,
+      totalChats,
+      osBreakdown: osStats.map((item) => ({ name: item._id || 'Unknown', count: item.count })),
+      browserBreakdown: browserStats.map((item) => ({ name: item._id || 'Unknown', count: item.count })),
+      deviceBreakdown: deviceStats.map((item) => ({ name: item._id || 'Unknown', count: item.count })),
+    },
+    recentVisitors: recentVisitors.map((v) => ({
+      _id: v._id,
+      visitorId: v.visitorId,
+      sessionId: v.sessionId || null,
+      ip: v.ip || 'Unknown',
+      os: v.os || 'Unknown',
+      browser: v.browser || 'Unknown',
+      device: v.device || 'Desktop',
+      pagesVisited: v.pages?.map((p: { path: string }) => p.path) || [],
+      pageCount: v.pages?.length || 0,
+      firstSeenAt: v.firstSeenAt,
+      lastSeenAt: v.lastSeenAt,
+    })),
+    total: totalVisitors,
+    page,
+    pages: Math.ceil(totalVisitors / limit) || 1,
+  });
+});
+

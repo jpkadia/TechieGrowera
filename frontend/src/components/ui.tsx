@@ -29,10 +29,7 @@ export function SectionHeading({
 }) {
   return (
     <div className="section-heading">
-      <span className="eyebrow">
-        <span />
-        {label}
-      </span>
+      <span className="eyebrow">{label}</span>
       <h2>{title.replace(/\\n/g, '\n')}</h2>
       {text && <p>{text}</p>}
     </div>

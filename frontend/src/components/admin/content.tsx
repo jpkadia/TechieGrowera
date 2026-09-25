@@ -23,11 +23,11 @@ export function ContentList({ kind }: { kind: string }) {
     <>
       <AdminHeading
         eyebrow="EDITORIAL WORKSPACE"
-        title={kind === 'blog' ? 'Journal' : 'Case studies'}
+        title={kind === 'blog' ? 'Blog' : 'Portfolio'}
         text="Create, review and publish. Saved drafts stay separate from your live website."
       >
         <Link className="admin-primary" href={`/admin/content/${kind}/new`}>
-          + Create {kind === 'blog' ? 'article' : 'case study'}
+          + Create {kind === 'blog' ? 'blog post' : 'portfolio project'}
         </Link>
       </AdminHeading>
       <div className="admin-toolbar">
@@ -87,7 +87,7 @@ export function ContentList({ kind }: { kind: string }) {
                 <div className="admin-empty">Nothing here yet. Start with a new draft.</div>
               )}
             </div>
-            <Pager page={page} total={data.total} size={20} onChange={setPage} />
+            <Pager page={page} total={data.total} size={10} onChange={setPage} />
           </>
         ) : (
           <p className="admin-loading">Loading content…</p>

@@ -4,6 +4,8 @@ import cors from 'cors';
 import { rateLimit } from 'express-rate-limit';
 import { env } from './config/env.js';
 import { contactRouter } from './routes/contact.js';
+import { chatRouter } from './routes/chat.js';
+import { analyticsRouter } from './routes/analytics.js';
 import { errorHandler } from './middleware/error.js';
 import { adminRouter } from './routes/admin.js';
 import { publishedRouter } from './routes/published.js';
@@ -14,8 +16,8 @@ app.use(helmet());
 app.use(
   cors({
     origin: env.FRONTEND_ORIGIN,
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'x-api-proxy-secret', 'x-client-ip'],
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'x-api-proxy-secret', 'x-client-ip', 'x-admin-session'],
   }),
 );
 app.use('/api', (_req, res, next) => {
@@ -44,6 +46,8 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, service: 'techie-growera-api', time: new Date().toISOString() });
 });
 app.use('/api/contact', contactRouter);
+app.use('/api/chat', chatRouter);
+app.use('/api/analytics', analyticsRouter);
 app.use((_req, res) => res.status(404).json({ ok: false, message: 'Endpoint not found.' }));
 app.use(errorHandler);
 export default app;

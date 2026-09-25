@@ -1,14 +1,16 @@
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
-import { ScrollToTop } from '@/components/scroll-to-top';
+import { ChatWidget } from '@/components/chatbot/chat-widget';
 import { Warmup } from '@/components/warmup';
+import { RouteScrollReset } from '@/components/route-scroll-reset';
 import { JsonLd } from '@/components/ui';
 import { Analytics } from '@/components/analytics';
+import { VisitorTracker } from '@/components/visitor-tracker';
 import { absolute, site } from '@/lib/site';
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      {' '}
+      <RouteScrollReset />
       <a className="skip-link" href="#main">
         Skip to content
       </a>
@@ -16,8 +18,9 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <Header />
       <main id="main">{children}</main>
       <Footer />
-      <ScrollToTop />
+      <ChatWidget />
       <Analytics />
+      <VisitorTracker />
       <JsonLd
         data={[
           {

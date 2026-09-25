@@ -3,16 +3,16 @@
 import { useEffect, useState } from 'react';
 import { BlogCard, WorkCard } from '@/components/cards';
 import { SkeletonCard } from '@/components/skeleton-card';
-import { caseStudies as fallbackStudies, posts as fallbackPosts, type BlogPost, type CaseStudy } from '@/content/editorial';
+import { portfolio as fallbackPortfolio, posts as fallbackPosts, type BlogPost, type PortfolioItem } from '@/content/editorial';
 
 type Props =
   | { kind: 'blog'; initialItems: BlogPost[] | null }
-  | { kind: 'case-studies'; initialItems: CaseStudy[] | null };
+  | { kind: 'portfolio'; initialItems: PortfolioItem[] | null };
 
 // Only optional cards load after hydration. The server-rendered homepage, links,
 // metadata and business content never wait for this request, for any user agent.
 export function HomepageCards({ kind, initialItems }: Props) {
-  const [items, setItems] = useState<(BlogPost | CaseStudy)[] | null>(initialItems);
+  const [items, setItems] = useState<(BlogPost | PortfolioItem)[] | null>(initialItems);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -52,15 +52,15 @@ export function HomepageCards({ kind, initialItems }: Props) {
   const activeItems =
     items ??
     (failed
-      ? kind === 'case-studies'
-        ? fallbackStudies.slice(0, 2)
+      ? kind === 'portfolio'
+        ? fallbackPortfolio.slice(0, 2)
         : fallbackPosts.slice(0, 3)
       : null);
 
   // While waiting for backend response, show YouTube / Instagram style shimmer wave
   if (activeItems === null) {
     return kind === 'blog' ? (
-      <div className="blog-grid" role="status" aria-label="Loading latest article previews">
+      <div className="blog-grid" role="status" aria-label="Loading latest blog previews">
         <SkeletonCard type="blog" />
         <SkeletonCard type="blog" />
         <SkeletonCard type="blog" />
@@ -74,7 +74,7 @@ export function HomepageCards({ kind, initialItems }: Props) {
   }
 
   if (!activeItems.length)
-    return <p>New {kind === 'blog' ? 'articles' : 'projects'} will appear here.</p>;
+    return <p>New {kind === 'blog' ? 'blog posts' : 'portfolio projects'} will appear here.</p>;
 
   return kind === 'blog' ? (
     <div className="blog-grid">
@@ -84,8 +84,8 @@ export function HomepageCards({ kind, initialItems }: Props) {
     </div>
   ) : (
     <div className="work-grid">
-      {(activeItems as CaseStudy[]).map((study) => (
-        <WorkCard key={study.slug} study={study} />
+      {(activeItems as PortfolioItem[]).map((project) => (
+        <WorkCard key={project.slug} project={project} />
       ))}
     </div>
   );

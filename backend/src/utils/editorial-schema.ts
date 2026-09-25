@@ -23,6 +23,7 @@ const path = z
 export const postDraft = z
   .object({
     title: text(140, 3),
+    shortTitle: text(100, 2).optional(),
     slug,
     excerpt: text(350, 20),
     author: text(100, 2),
@@ -51,7 +52,7 @@ export const postDraft = z
       .max(30),
   })
   .strict();
-export const caseDraft = z
+export const portfolioDraft = z
   .object({
     title: text(140, 3),
     slug,
@@ -71,7 +72,7 @@ export const saveBody = (kind: string) =>
   z
     .object({
       revision: z.number().int().positive().optional(),
-      draft: kind === 'blog' ? postDraft : caseDraft,
+      draft: kind === 'blog' ? postDraft : portfolioDraft,
     })
     .strict();
 export const revisionBody = z.object({ revision: z.number().int().positive() }).strict();

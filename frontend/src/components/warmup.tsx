@@ -25,9 +25,13 @@ export function Warmup() {
         cache: 'no-store',
         priority: 'low',
       })
-        .then((res) => res.json())
+        .then(async (res) => {
+          if (!res.ok) return null;
+          const ct = res.headers.get('content-type') || '';
+          return ct.includes('application/json') ? res.json() : null;
+        })
         .then((data) => {
-          if (data.ok || data.warmed) {
+          if (data && (data.ok || data.warmed)) {
             try {
               sessionStorage.setItem('tg_backend_warmed', 'true');
             } catch {

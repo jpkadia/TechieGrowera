@@ -20,7 +20,7 @@ export type BlogPost = {
 };
 export const posts: BlogPost[] = [
   {
-    slug: 'website-redesign-seo-checklist',
+    slug: 'website-redesign-seo',
     title: 'Planning a website redesign? Protect the foundations first.',
     shortTitle: 'Website Redesign SEO',
     excerpt:
@@ -34,8 +34,8 @@ export const posts: BlogPost[] = [
     seoTitle: 'Website Redesign SEO Checklist',
     metaDescription:
       'Plan a website redesign with a practical checklist for content inventory, URL mapping, mobile usability, tracking and post-launch checks.',
-    canonicalPath: '/blog/website-redesign-seo-checklist',
-    ogImage: '/blog/website-redesign-seo-checklist/opengraph-image',
+    canonicalPath: '/blog/website-redesign-seo',
+    ogImage: '/blog/website-redesign-seo/opengraph-image',
     service: 'web-development',
     sections: [
       {
@@ -76,7 +76,7 @@ export const posts: BlogPost[] = [
     ],
   },
   {
-    slug: 'building-a-useful-social-content-plan',
+    slug: 'social-content-plan',
     title: 'A social content plan your business can actually maintain',
     shortTitle: 'Social Content Plan',
     excerpt:
@@ -90,8 +90,8 @@ export const posts: BlogPost[] = [
     seoTitle: 'How to Build a Useful Social Content Plan',
     metaDescription:
       'Create a manageable social content plan using customer questions, clear content themes, approval workflows and meaningful reporting.',
-    canonicalPath: '/blog/building-a-useful-social-content-plan',
-    ogImage: '/blog/building-a-useful-social-content-plan/opengraph-image',
+    canonicalPath: '/blog/social-content-plan',
+    ogImage: '/blog/social-content-plan/opengraph-image',
     service: 'social-media-management',
     sections: [
       {
@@ -132,7 +132,7 @@ export const posts: BlogPost[] = [
     ],
   },
   {
-    slug: 'before-your-first-meta-ads-campaign',
+    slug: 'meta-ads-campaign',
     title: 'Before your first Meta campaign: get the essentials in place',
     shortTitle: 'Meta Ads Campaign',
     excerpt:
@@ -146,8 +146,8 @@ export const posts: BlogPost[] = [
     seoTitle: 'Preparing for Your First Meta Ads Campaign',
     metaDescription:
       'Prepare your offer, landing page, creative brief and measurement plan before starting a Facebook or Instagram advertising campaign.',
-    canonicalPath: '/blog/before-your-first-meta-ads-campaign',
-    ogImage: '/blog/before-your-first-meta-ads-campaign/opengraph-image',
+    canonicalPath: '/blog/meta-ads-campaign',
+    ogImage: '/blog/meta-ads-campaign/opengraph-image',
     service: 'meta-ads',
     sections: [
       {
@@ -188,7 +188,7 @@ export const posts: BlogPost[] = [
     ],
   },
 ];
-export type CaseStudy = {
+export type PortfolioItem = {
   slug: string;
   title: string;
   client: string;
@@ -203,7 +203,9 @@ export type CaseStudy = {
   updatedAt: string;
   theme: string;
 };
-export const caseStudies: CaseStudy[] = [
+export type PortfolioProject = PortfolioItem;
+
+export const portfolio: PortfolioItem[] = [
   {
     slug: 'cartel-369',
     title: 'Cartel 369 — Healthcare & Pharma Ecosystem',
@@ -281,3 +283,53 @@ export const caseStudies: CaseStudy[] = [
     updatedAt: '2026-09-21',
   },
 ];
+
+export function getPostBoxTitle(post: {
+  slug?: string;
+  shortTitle?: string;
+  title: string;
+  category?: string;
+}): string {
+  if (post.shortTitle && post.shortTitle.trim()) {
+    return post.shortTitle.trim();
+  }
+
+  const presetShortTitles: Record<string, string> = {
+    'website-redesign-seo': 'Website Redesign SEO',
+    'website-redesign-seo-checklist': 'Website Redesign SEO',
+    'social-content-plan': 'Social Content Plan',
+    'building-a-useful-social-content-plan': 'Social Content Plan',
+    'meta-ads-campaign': 'Meta Ads Campaign',
+    'before-your-first-meta-ads-campaign': 'Meta Ads Campaign',
+  };
+
+  if (post.slug && presetShortTitles[post.slug]) {
+    return presetShortTitles[post.slug];
+  }
+
+  if (post.title) {
+    const colonSplit = post.title.split(':');
+    if (colonSplit.length > 1 && colonSplit[0].trim().length >= 4 && colonSplit[0].trim().length <= 32) {
+      return colonSplit[0].trim();
+    }
+    const questionSplit = post.title.split('?');
+    if (questionSplit.length > 1 && questionSplit[0].trim().length >= 4 && questionSplit[0].trim().length <= 32) {
+      return questionSplit[0].trim();
+    }
+    const dashSplit = post.title.split(/[\u2014-]/);
+    if (dashSplit.length > 1 && dashSplit[0].trim().length >= 4 && dashSplit[0].trim().length <= 32) {
+      return dashSplit[0].trim();
+    }
+    if (post.title.length > 26) {
+      const truncated = post.title.slice(0, 26);
+      const lastSpace = truncated.lastIndexOf(' ');
+      return (lastSpace > 10 ? truncated.slice(0, lastSpace) : truncated).trim();
+    }
+    return post.title.trim();
+  }
+
+  return post.category || 'Article';
+}
+
+export const portfolioProjects = portfolio;
+
