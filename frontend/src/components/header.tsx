@@ -164,7 +164,7 @@ export function Header() {
             onClick={() => setOpen(false)}
           >
             <Image
-              style={{ width: 'auto', height: 'auto' }}
+              style={{ width: '43px', height: 'auto' }}
               src="/brand/mark.svg"
               width={43}
               height={39}
@@ -191,7 +191,7 @@ export function Header() {
                 onClick={() => setOpen(false)}
               >
                 <Image
-                  style={{ width: 'auto', height: 'auto', flexShrink: 0 }}
+                  style={{ width: '40px', height: 'auto', flexShrink: 0 }}
                   src="/brand/mark.svg"
                   width={40}
                   height={36}

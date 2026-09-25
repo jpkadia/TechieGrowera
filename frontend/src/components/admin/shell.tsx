@@ -50,7 +50,7 @@ export function AdminShell({ email, children }: { email: string; children: React
             width={34}
             height={31}
             alt="Techie Growera"
-            style={{ width: 'auto', height: 'auto', flexShrink: 0 }}
+            style={{ width: '34px', height: 'auto', flexShrink: 0 }}
           />
           <span className="brand-info">
             <span className="brand-name">

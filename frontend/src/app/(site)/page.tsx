@@ -51,7 +51,6 @@ export default function Home() {
               <div className="orbit orbit-one" />
               <div className="orbit orbit-two" />
               <Image
-                style={{ width: 'auto', height: 'auto' }}
                 src="/brand/mark.svg"
                 alt="Techie Growera growth monogram"
                 width={325}

@@ -289,6 +289,11 @@ body:has(.site-header) {
   white-space: nowrap;
   transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
 }
+.brand img {
+  width: 43px;
+  height: auto;
+  flex-shrink: 0;
+}
 .brand-info,
 .brand > span {
   display: flex;
@@ -2342,8 +2347,8 @@ body:has(.site-header) {
     gap: 8px;
   }
   .brand img {
-    width: 39px;
-    height: auto;
+    width: 39px !important;
+    height: auto !important;
   }
   .brand small {
     display: block;
@@ -2612,8 +2617,8 @@ body:has(.site-header) {
     gap: 7px;
   }
   .brand img {
-    width: 36px;
-    height: auto;
+    width: 36px !important;
+    height: auto !important;
   }
   .brand small {
     display: block;

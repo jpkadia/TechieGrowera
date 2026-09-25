@@ -10,7 +10,7 @@ export default function Login() {
           width={44}
           height={40}
           alt="Techie Growera"
-          style={{ width: 'auto', height: 'auto', flexShrink: 0 }}
+          style={{ width: '44px', height: 'auto', flexShrink: 0 }}
         />
         <div className="brand-info">
           <span className="brand-name">

@@ -11,11 +11,12 @@ export function Footer() {
       <div className="container footer-grid">
         <div className="footer-brand">
           <Link href="/" className="brand">
-            <Image style={{ width: 'auto', height: 'auto' }} src="/brand/mark.svg" width={42} height={38} alt="" />
+            <Image style={{ width: '42px', height: 'auto' }} src="/brand/mark.svg" width={42} height={38} alt="" />
             <span className="brand-info">
               <span className="brand-name">
                 Techie <strong>Growera</strong>
               </span>
+              <small>WEB · CREATIVE · GROWTH</small>
             </span>
           </Link>
           <p>Scaling digital presence with intent. Web development, creative and measurable growth.</p>
