@@ -39,13 +39,24 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
               '@type': 'Person',
               '@id': absolute(`/about#${f.name.toLowerCase().replace(/\s+/g, '-')}`),
               name: f.name,
-              jobTitle: f.role,
+              givenName: f.name.split(' ')[0],
+              familyName: f.name.split(' ')[1] || '',
+              alternateName:
+                f.name === 'Parth Kadiya' ? ['Parth Kadia', 'Parth'] : ['Kush Kadiya', 'Kush'],
+              jobTitle: `Co-Founder & ${f.role}`,
+              worksFor: { '@id': absolute('/#organization') },
               ...(f.image
                 ? {
                     image: {
                       '@type': 'ImageObject',
+                      '@id': absolute(`${f.image}#photo`),
                       url: absolute(f.image),
-                      caption: `${f.name} — Co-Founder & ${f.role} at Techie Growera`,
+                      contentUrl: absolute(f.image),
+                      name: `${f.name} — Co-Founder & ${f.role} at Techie Growera`,
+                      caption: `${f.name}, Co-Founder and ${f.role} at Techie Growera`,
+                      width: 1254,
+                      height: 1254,
+                      encodingFormat: 'image/webp',
                     },
                   }
                 : {}),
@@ -72,6 +83,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
               new URL(site.url).hostname,
             ],
             url: site.url,
+            dateModified: '2026-09-26',
             publisher: { '@id': absolute('/#organization') },
           },
           ...(site.address && site.phone && site.serviceArea

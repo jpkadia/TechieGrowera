@@ -45,12 +45,19 @@ export async function POST(request: NextRequest) {
   const respond = (message: string, status: number) =>
     NextResponse.json({ ok: false, message }, { status, headers: { 'Cache-Control': 'no-store' } });
 
-  const expectedOrigin = new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').origin;
   const requestOrigin = request.headers.get('origin');
+  if (requestOrigin) {
+    const siteUrlOrigin = new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').origin;
+    const currentOrigin = request.nextUrl.origin;
+    const isAllowed =
+      requestOrigin === siteUrlOrigin ||
+      requestOrigin === currentOrigin ||
+      (requestOrigin.endsWith('.vercel.app') && requestOrigin.startsWith('https://')) ||
+      requestOrigin.startsWith('http://localhost:');
 
-  // Verify origin in browser requests (allow if matches expected origin)
-  if (requestOrigin && requestOrigin !== expectedOrigin) {
-    return respond('This request is not allowed.', 403);
+    if (!isAllowed) {
+      return respond('This request is not allowed.', 403);
+    }
   }
 
   if (!request.headers.get('content-type')?.toLowerCase().startsWith('application/json')) {

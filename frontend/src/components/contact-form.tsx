@@ -80,10 +80,6 @@ export function ContactForm() {
 
   useEffect(() => {
     started.current = Date.now();
-    const requested = new URLSearchParams(window.location.search).get('service');
-    if (requested && services.some((s) => s.slug === requested) && serviceRef.current) {
-      serviceRef.current.value = requested;
-    }
   }, []);
 
   function handleFieldChange(event: React.FormEvent<HTMLFormElement>) {
@@ -268,7 +264,7 @@ export function ContactForm() {
             aria-invalid={!!errors.service}
             aria-describedby={errors.service ? 'service-error' : undefined}
           >
-            <option value="" disabled>
+            <option value="" disabled hidden>
               Select a service
             </option>
             {services.map((s) => (

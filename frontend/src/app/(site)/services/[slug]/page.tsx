@@ -36,7 +36,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
           <h1>{s.title}</h1>
           <p className="intro">{s.intro}</p>
           <div className="button-row">
-            <ButtonLink href={`/contact?service=${s.slug}`}>
+            <ButtonLink href="/contact">
               Discuss your {s.slug === 'seo' ? 'SEO' : 'project'}
             </ButtonLink>
             <ButtonLink href="#deliverables" secondary>

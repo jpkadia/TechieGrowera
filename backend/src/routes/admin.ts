@@ -346,7 +346,9 @@ adminRouter.get('/chats', async (req, res) => {
   const limit = 10;
   const skip = (page - 1) * limit;
   const cutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
-  const filter = { lastActiveAt: { $gte: cutoff } };
+  const filter = {
+    $or: [{ lastActiveAt: { $gte: cutoff } }, { createdAt: { $gte: cutoff } }],
+  };
 
   const [total, sessions] = await Promise.all([
     ChatSession.countDocuments(filter),

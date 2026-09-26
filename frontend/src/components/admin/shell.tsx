@@ -107,7 +107,7 @@ export function AdminShell({ email, children }: { email: string; children: React
             onClick={() => setOpen(false)}
             aria-label="Close sidebar navigation"
           >
-            <X size={18} />
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
 

@@ -18,6 +18,7 @@ interface ChatMessage {
 }
 
 const SESSION_STORAGE_KEY = 'tg_chat_session_id';
+const MESSAGES_STORAGE_KEY = 'tg_chat_messages';
 
 const WELCOME_MESSAGE =
   "Hi! I'm here from the Techie Growera team. How can I help you today? Feel free to ask about our services, client projects, or how we can help grow your business.";
@@ -104,13 +105,23 @@ export function ChatWidget() {
       return '';
     }
   });
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      content: WELCOME_MESSAGE,
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    if (typeof window === 'undefined') {
+      return [{ id: 'welcome', role: 'assistant', content: WELCOME_MESSAGE }];
+    }
+    try {
+      const cached = localStorage.getItem(MESSAGES_STORAGE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch {
+      // ignore storage error
+    }
+    return [{ id: 'welcome', role: 'assistant', content: WELCOME_MESSAGE }];
+  });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -121,7 +132,20 @@ export function ChatWidget() {
   const messageIdCounterRef = useRef(0);
   const historyLoadedRef = useRef(false);
 
-  // Fetch previous chat history for returning user
+  // Synchronize active messages to localStorage so refresh never wipes the chat
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const hasRealMessages = messages.some((m) => m.role === 'user');
+      if (hasRealMessages) {
+        localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(messages));
+      }
+    } catch {
+      // ignore storage error
+    }
+  }, [messages]);
+
+  // Fetch previous chat history from backend if returning user on a new device/browser
   useEffect(() => {
     if (!sessionId || historyLoadedRef.current) return;
     historyLoadedRef.current = true;
@@ -139,11 +163,17 @@ export function ChatWidget() {
             role: m.role,
             content: m.content,
           }));
-          setMessages(restored);
+          setMessages((current) => {
+            const hasReal = current.some((m) => m.role === 'user');
+            if (!hasReal || restored.length >= current.length) {
+              return restored;
+            }
+            return current;
+          });
         }
       })
       .catch(() => {
-        // Graceful fallback to welcome message if network/storage is unavailable
+        // Graceful fallback if network is temporarily unavailable
       });
   }, [sessionId]);
 
@@ -281,12 +311,22 @@ export function ChatWidget() {
   };
 
   const handleClearChat = () => {
-    const newId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `sess_${Date.now()}`;
+    // 1. Generate a new session ID for the new conversation
+    const newId =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `sess_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     setSessionId(newId);
+    historyLoadedRef.current = false;
     try {
       localStorage.setItem(SESSION_STORAGE_KEY, newId);
+      // 2. Clear cached messages from local storage so the widget UI starts fresh
+      localStorage.removeItem(MESSAGES_STORAGE_KEY);
     } catch {}
 
+    // 3. Reset the UI to welcome message
+    // NOTE: The previous conversation is NOT deleted from MongoDB database!
+    // It remains in MongoDB collection `chat_sessions` and will only be auto-deleted after 60 days.
     setMessages([
       {
         id: 'welcome',

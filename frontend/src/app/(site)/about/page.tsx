@@ -102,13 +102,25 @@ export default function About() {
           </p>
           <div className="founder-grid">
             {site.founders.map((founder) => (
-              <article key={founder.name} className="founder-card">
+              <article
+                key={founder.name}
+                className="founder-card"
+                itemScope
+                itemType="https://schema.org/Person"
+              >
+                <meta itemProp="name" content={founder.name} />
+                <meta itemProp="jobTitle" content={`Co-Founder & ${founder.role}`} />
+                <meta itemProp="worksFor" content="Techie Growera" />
                 {founder.image ? (
                   <Image
                     src={founder.image}
                     alt={`${founder.name} — Co-Founder & ${founder.role} at Techie Growera`}
-                    width={112}
-                    height={112}
+                    title={`${founder.name} — Co-Founder & ${founder.role} at Techie Growera`}
+                    width={224}
+                    height={224}
+                    sizes="112px"
+                    priority
+                    itemProp="image"
                     className="founder-avatar"
                   />
                 ) : (
@@ -119,7 +131,7 @@ export default function About() {
                       .join('')}
                   </span>
                 )}
-                <h3>{founder.name}</h3>
+                <h3 itemProp="name">{founder.name}</h3>
                 <p>{founder.role}</p>
                 {(founder.portfolio || founder.linkedin) && (
                   <div className="founder-links">
@@ -129,6 +141,7 @@ export default function About() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="founder-link"
+                        itemProp="url"
                       >
                         Portfolio ↗
                         <span className="sr-only"> for {founder.name} (opens in new tab)</span>
@@ -140,6 +153,7 @@ export default function About() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="founder-link"
+                        itemProp="sameAs"
                       >
                         LinkedIn ↗
                         <span className="sr-only"> for {founder.name} (opens in new tab)</span>
@@ -163,19 +177,48 @@ export default function About() {
             name: 'About Techie Growera | Digital Agency Founders & Vision',
             description:
               'Meet Parth Kadiya and Kush Kadia, co-founders of Techie Growera — scaling digital presence with intent through web engineering, creative design, and digital marketing.',
+            datePublished: '2026-01-01',
+            dateModified: '2026-09-26',
+            inLanguage: 'en-IN',
             isPartOf: { '@id': absolute('/#website') },
             mainEntity: site.founders.map((f) => ({
               '@type': 'Person',
               '@id': absolute(`/about#${f.name.toLowerCase().replace(/\s+/g, '-')}`),
               name: f.name,
-              jobTitle: f.role,
-              worksFor: { '@id': absolute('/#organization') },
+              givenName: f.name.split(' ')[0],
+              familyName: f.name.split(' ')[1] || '',
+              alternateName:
+                f.name === 'Parth Kadiya' ? ['Parth Kadia', 'Parth'] : ['Kush Kadiya', 'Kush'],
+              jobTitle: `Co-Founder & ${f.role}`,
+              description:
+                f.name === 'Parth Kadiya'
+                  ? 'Co-Founder and Web Developer at Techie Growera, leading web application development, Next.js architecture, and technical SEO.'
+                  : 'Co-Founder and Digital Marketing Executive at Techie Growera, leading performance marketing, Meta Ads, and brand growth.',
+              worksFor: {
+                '@type': 'Organization',
+                '@id': absolute('/#organization'),
+                name: site.name,
+                url: site.url,
+              },
               ...(f.image
                 ? {
                     image: {
                       '@type': 'ImageObject',
+                      '@id': absolute(`${f.image}#photo`),
                       url: absolute(f.image),
-                      caption: `${f.name} — Co-Founder & ${f.role} at Techie Growera`,
+                      contentUrl: absolute(f.image),
+                      name: `${f.name} — Co-Founder & ${f.role} at Techie Growera`,
+                      caption: `${f.name}, Co-Founder and ${f.role} at Techie Growera`,
+                      description: `Official portrait of ${f.name}, Co-Founder and ${f.role} at Techie Growera digital agency in Ahmedabad, Gujarat, India.`,
+                      width: 1254,
+                      height: 1254,
+                      encodingFormat: 'image/webp',
+                      creator: {
+                        '@type': 'Organization',
+                        name: site.name,
+                      },
+                      creditText: site.name,
+                      copyrightNotice: `© ${new Date().getFullYear()} ${site.name}`,
                     },
                   }
                 : {}),
@@ -188,8 +231,10 @@ export default function About() {
                       'Next.js',
                       'React',
                       'Frontend Engineering',
+                      'Full Stack Development',
                       'Technical SEO',
                       'Software Architecture',
+                      'Web Design',
                     ]
                   : [
                       'Digital Marketing',
@@ -197,9 +242,43 @@ export default function About() {
                       'Performance Marketing',
                       'Social Media Management',
                       'Brand Strategy',
+                      'Search Engine Optimization (SEO)',
+                      'Lead Generation',
                     ],
             })),
           },
+          ...site.founders
+            .filter((f) => f.image)
+            .map((f) => ({
+              '@context': 'https://schema.org',
+              '@type': 'ImageObject',
+              '@id': absolute(`${f.image}#photo-entity`),
+              url: absolute(f.image!),
+              contentUrl: absolute(f.image!),
+              name: `${f.name} — Co-Founder & ${f.role} at Techie Growera`,
+              caption: `${f.name}, Co-Founder and ${f.role} at Techie Growera`,
+              description: `Portrait photograph of ${f.name}, Co-Founder and ${f.role} at Techie Growera digital agency in Ahmedabad, Gujarat, India.`,
+              width: 1254,
+              height: 1254,
+              encodingFormat: 'image/webp',
+              about: {
+                '@type': 'Person',
+                name: f.name,
+                jobTitle: `Co-Founder & ${f.role}`,
+                worksFor: {
+                  '@type': 'Organization',
+                  name: site.name,
+                  url: site.url,
+                },
+              },
+              author: {
+                '@type': 'Organization',
+                name: site.name,
+                url: site.url,
+              },
+              creditText: site.name,
+              copyrightNotice: `© ${new Date().getFullYear()} ${site.name}`,
+            })),
           {
             '@context': 'https://schema.org',
             '@type': 'BreadcrumbList',

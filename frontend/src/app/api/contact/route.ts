@@ -4,10 +4,20 @@ export const runtime = 'nodejs';
 export async function POST(request: NextRequest) {
   const respond = (message: string, status: number) =>
     NextResponse.json({ ok: false, message }, { status, headers: { 'Cache-Control': 'no-store' } });
-  const expectedOrigin = new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000')
-    .origin;
-  if (request.headers.get('origin') !== expectedOrigin)
-    return respond('This request is not allowed.', 403);
+  const requestOrigin = request.headers.get('origin');
+  if (requestOrigin) {
+    const siteUrlOrigin = new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').origin;
+    const currentOrigin = request.nextUrl.origin;
+    const isAllowed =
+      requestOrigin === siteUrlOrigin ||
+      requestOrigin === currentOrigin ||
+      (requestOrigin.endsWith('.vercel.app') && requestOrigin.startsWith('https://')) ||
+      requestOrigin.startsWith('http://localhost:');
+
+    if (!isAllowed) {
+      return respond('This request is not allowed.', 403);
+    }
+  }
   if (!request.headers.get('content-type')?.toLowerCase().startsWith('application/json'))
     return respond('Please send a JSON request.', 415);
   const api = process.env.API_BASE_URL;

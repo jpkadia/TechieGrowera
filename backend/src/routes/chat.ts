@@ -151,7 +151,7 @@ chatRouter.post('/', authenticateProxy, chatLimiter, async (req, res) => {
       ).catch(() => {});
     }
   } catch (dbErr) {
-    console.warn('[ChatRouter] Failed to persist chat session:', dbErr instanceof Error ? dbErr.message : dbErr);
+    console.error('[ChatRouter] Failed to persist chat session:', dbErr instanceof Error ? dbErr.stack || dbErr.message : dbErr);
   }
 
   return res.json({ ok: true, reply, sessionId });
