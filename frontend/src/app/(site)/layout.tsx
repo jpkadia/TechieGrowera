@@ -80,6 +80,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
               'TechieGrowera',
               'Techie Grow Era',
               'TechieGrowera Agency',
+              'techiegrowera.vercel.app',
+              'https://techiegrowera.vercel.app',
               new URL(site.url).hostname,
             ],
             url: site.url,

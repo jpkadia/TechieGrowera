@@ -5,7 +5,7 @@ const configuredUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
   (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : '') ||
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
-  'http://localhost:3000';
+  (process.env.NODE_ENV === 'production' ? 'https://techiegrowera.vercel.app' : 'http://localhost:3000');
 const parsedUrl = new URL(configuredUrl);
 if (
   !['http:', 'https:'].includes(parsedUrl.protocol) ||
@@ -19,7 +19,7 @@ export const site = {
   tagline: business.tagline,
   url: parsedUrl.origin,
   indexable:
-    process.env.NEXT_PUBLIC_SITE_INDEXABLE === 'true' &&
+    process.env.NEXT_PUBLIC_SITE_INDEXABLE !== 'false' &&
     parsedUrl.protocol === 'https:' &&
     !['localhost', '127.0.0.1'].includes(parsedUrl.hostname),
   email: process.env.NEXT_PUBLIC_BUSINESS_EMAIL || business.email,
