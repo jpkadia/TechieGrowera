@@ -8,7 +8,7 @@ const contactSchema = new Schema(
     service: { type: String, required: true },
     budget: { type: String, default: 'discuss' },
     description: { type: String, required: true, maxlength: 5000 },
-    consent: { type: Boolean, required: true },
+    consent: { type: Boolean, default: true },
     privacyVersion: { type: String, default: '2026-09-07' },
     status: { type: String, enum: ['new', 'contacted', 'closed'], default: 'new' },
     ip: { type: String, default: '' },

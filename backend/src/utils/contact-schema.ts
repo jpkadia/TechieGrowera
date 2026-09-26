@@ -35,8 +35,8 @@ export const contactSchema = z
     budget: z
       .enum(['under-25k', '25k-50k', '50k-100k', '100k-plus', 'discuss'])
       .default('discuss'),
-    description: text(20, 5000),
-    consent: z.literal(true),
+    description: text(10, 5000),
+    consent: z.boolean().default(true),
     website: z.string().max(300).default(''),
     startedAt: z.number().int().positive(),
   })

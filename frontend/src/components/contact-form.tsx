@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { services } from '@/content/services';
 import { getClientDeviceInfo } from '@/lib/device-detect';
@@ -53,17 +52,12 @@ function validateClientForm(formData: FormData): Record<string, string[]> {
   const description = String(formData.get('description') || '').trim();
   if (!description) {
     errs.description = ['Please tell us about your project requirements.'];
-  } else if (description.length < 20) {
+  } else if (description.length < 10) {
     errs.description = [
-      `Project details must be at least 20 characters (currently ${description.length}).`,
+      `Project details must be at least 10 characters (currently ${description.length}).`,
     ];
   } else if (description.length > 5000) {
     errs.description = ['Project details cannot exceed 5000 characters.'];
-  }
-
-  const consent = formData.get('consent');
-  if (consent !== 'on') {
-    errs.consent = ['Please agree to the privacy policy to proceed.'];
   }
 
   return errs;
@@ -144,7 +138,7 @@ export function ContactForm() {
         },
         body: JSON.stringify({
           ...values,
-          consent: values.consent === 'on',
+          consent: true,
           startedAt: started.current,
         }),
         signal: AbortSignal.timeout(60000), // Patient 60s timeout for Render cold start
@@ -295,21 +289,6 @@ export function ContactForm() {
         <label htmlFor="website">Leave this field empty</label>
         <input id="website" name="website" tabIndex={-1} autoComplete="off" />
       </div>
-      <label className={`consent-check ${errors.consent ? 'has-error' : ''}`}>
-        <input
-          id="consent"
-          type="checkbox"
-          name="consent"
-          aria-required="true"
-          aria-invalid={!!errors.consent}
-          aria-describedby={errors.consent ? 'consent-error' : undefined}
-        />
-        <span>
-          I agree to be contacted about this enquiry and have read the{' '}
-          <Link href="/privacy-policy">privacy policy</Link>. *
-        </span>
-      </label>
-      {fieldError('consent')}
       <button className="button" type="submit" disabled={busy} aria-busy={busy}>
         {busy
           ? coldPhase === 'waking'
