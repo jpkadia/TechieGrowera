@@ -3006,3 +3006,65 @@ body:has(.site-header) {
     box-shadow: 0 0 0 0 rgba(0, 126, 131, 0);
   }
 }
+
+/* ==========================================================================
+   SCROLL REVEAL (GPU-Accelerated, SEO-Safe, 60-120fps)
+   Progressive enhancement: SSR and search crawlers see 100% visible static HTML.
+   Transitions execute strictly on GPU compositor thread via translate3d and opacity.
+   ========================================================================== */
+
+/* 1. Default state: static HTML & search crawlers render full visibility without transforms */
+.reveal-on-scroll {
+  opacity: 1;
+  transform: none;
+}
+
+/* 2. Client-activated scroll reveal: enabled only when JS confirms not a bot and user allows motion */
+@media (prefers-reduced-motion: no-preference) {
+  html.has-scroll-reveal .reveal-on-scroll {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+    transition:
+      opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+
+  html.has-scroll-reveal .reveal-on-scroll.is-revealed {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    will-change: auto;
+  }
+
+  /* Micro-stagger cascades for sibling cards and grid items */
+  html.has-scroll-reveal .reveal-on-scroll[data-reveal-index="1"] {
+    transition-delay: 0.07s;
+  }
+  html.has-scroll-reveal .reveal-on-scroll[data-reveal-index="2"] {
+    transition-delay: 0.14s;
+  }
+  html.has-scroll-reveal .reveal-on-scroll[data-reveal-index="3"] {
+    transition-delay: 0.21s;
+  }
+  html.has-scroll-reveal .reveal-on-scroll[data-reveal-index="4"] {
+    transition-delay: 0.28s;
+  }
+}
+
+/* 3. Reduced motion accessibility: instantaneous display with zero motion */
+@media (prefers-reduced-motion: reduce) {
+  html.has-scroll-reveal .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+}
+
+/* 4. Admin Isolation: Admin panel is strictly excluded from any scroll animation */
+.admin-root,
+.admin-root * {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}

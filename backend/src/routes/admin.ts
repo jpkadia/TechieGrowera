@@ -484,19 +484,50 @@ adminRouter.get('/analytics', async (req, res) => {
 
   const totalPageViews = pageviewsAgg[0]?.total || 0;
 
-  const formattedVisitors = visitorsList.map((v) => ({
-    _id: v._id,
-    visitorId: v.visitorId,
-    sessionId: v.sessionId || null,
-    ip: v.ip || 'Unknown',
-    os: v.os || 'Unknown',
-    browser: v.browser || 'Unknown',
-    device: v.device || 'Desktop',
-    pagesVisited: v.pages?.map((p: { path: string }) => p.path) || [],
-    pageCount: v.pages?.length || 0,
-    firstSeenAt: v.firstSeenAt,
-    lastSeenAt: v.lastSeenAt,
-  }));
+function parseTrafficSource(referrer: string): { source: string; domain: string } {
+  if (!referrer || referrer.trim() === '') {
+    return { source: 'Direct / None', domain: 'Direct' };
+  }
+  try {
+    const parsed = new URL(referrer);
+    const host = parsed.hostname.toLowerCase();
+    if (host.includes('google.')) return { source: 'Google Search', domain: host };
+    if (host.includes('instagram.')) return { source: 'Instagram', domain: host };
+    if (host.includes('linkedin.')) return { source: 'LinkedIn', domain: host };
+    if (host.includes('facebook.') || host.includes('fb.me')) return { source: 'Facebook', domain: host };
+    if (host.includes('t.co') || host.includes('twitter.') || host.includes('x.com')) return { source: 'Twitter / X', domain: host };
+    if (host.includes('youtube.') || host.includes('youtu.be')) return { source: 'YouTube', domain: host };
+    if (host.includes('localhost') || host.includes('127.0.0.1')) return { source: 'Localhost (Dev)', domain: host };
+    if (host.includes('vercel.app') || host.includes('vercel.com')) return { source: 'Vercel / Preview', domain: host };
+    if (host.includes('techiegrowera.')) return { source: 'Direct / Internal', domain: host };
+    return { source: host, domain: host };
+  } catch {
+    return { source: referrer.slice(0, 30), domain: referrer.slice(0, 30) };
+  }
+}
+
+  const formattedVisitors = visitorsList.map((v) => {
+    const firstPage = v.pages?.[0];
+    const rawReferrer = firstPage?.referrer || v.pages?.find((p: { referrer?: string }) => p.referrer)?.referrer || '';
+    const { source, domain } = parseTrafficSource(rawReferrer);
+
+    return {
+      _id: v._id,
+      visitorId: v.visitorId,
+      sessionId: v.sessionId || null,
+      ip: v.ip || 'Unknown',
+      os: v.os || 'Unknown',
+      browser: v.browser || 'Unknown',
+      device: v.device || 'Desktop',
+      source,
+      sourceDomain: domain,
+      referrer: rawReferrer,
+      pagesVisited: v.pages?.map((p: { path: string }) => p.path) || [],
+      pageCount: v.pages?.length || 0,
+      firstSeenAt: v.firstSeenAt,
+      lastSeenAt: v.lastSeenAt,
+    };
+  });
 
   res.json({
     ok: true,

@@ -3,6 +3,7 @@ import { Footer } from '@/components/footer';
 import { ChatWidget } from '@/components/chatbot/chat-widget';
 import { Warmup } from '@/components/warmup';
 import { RouteScrollReset } from '@/components/route-scroll-reset';
+import { ScrollReveal } from '@/components/scroll-reveal';
 import { JsonLd } from '@/components/ui';
 import { Analytics } from '@/components/analytics';
 import { VisitorTracker } from '@/components/visitor-tracker';
@@ -11,6 +12,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
   return (
     <>
       <RouteScrollReset />
+      <ScrollReveal />
       <a className="skip-link" href="#main">
         Skip to content
       </a>

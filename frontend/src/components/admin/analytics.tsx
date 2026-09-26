@@ -42,6 +42,8 @@ type AnalyticsData = {
     os: string;
     browser: string;
     device: string;
+    source?: string;
+    sourceDomain?: string;
     pagesVisited: string[];
     pageCount: number;
     firstSeenAt: string;
@@ -55,6 +57,8 @@ type AnalyticsData = {
     os: string;
     browser: string;
     device: string;
+    source?: string;
+    sourceDomain?: string;
     pagesVisited: string[];
     pageCount: number;
     firstSeenAt: string;
@@ -348,7 +352,7 @@ export function AnalyticsDashboard() {
                   <table className="admin-table">
                     <thead>
                       <tr>
-                        <th>Visitor / IP</th>
+                        <th>Visitor / IP &amp; Source</th>
                         <th>Device &amp; OS</th>
                         <th>Pages Visited</th>
                         <th>Chatted?</th>
@@ -359,11 +363,38 @@ export function AnalyticsDashboard() {
                     <tbody>
                       {visitorsList.map((v) => (
                         <tr key={v._id}>
-                          <td>
+                          <td style={{ minWidth: '150px' }}>
                             <strong>{v.ip}</strong>
-                            <small className="admin-mono text-[#617682]">
+                            <small className="admin-mono text-[#617682] block">
                               {v.visitorId.slice(0, 10)}…
                             </small>
+                            <span
+                              className="admin-badge"
+                              style={{
+                                marginTop: '4px',
+                                fontSize: '10px',
+                                fontWeight: 600,
+                                display: 'inline-block',
+                                background: v.source?.includes('Google')
+                                  ? '#e8f5e9'
+                                  : v.source?.includes('Localhost')
+                                  ? '#fff3e0'
+                                  : v.source?.includes('Direct')
+                                  ? '#f4f7f9'
+                                  : '#e0f2f1',
+                                color: v.source?.includes('Google')
+                                  ? '#2e7d32'
+                                  : v.source?.includes('Localhost')
+                                  ? '#e65100'
+                                  : v.source?.includes('Direct')
+                                  ? '#566773'
+                                  : '#007e83',
+                                border: '1px solid #d3e0e8',
+                              }}
+                              title={v.sourceDomain ? `Traffic source domain: ${v.sourceDomain}` : 'Direct access'}
+                            >
+                              {v.source || 'Direct / None'}
+                            </span>
                           </td>
                           <td>
                             <span className="admin-badge">{v.device}</span>
