@@ -347,13 +347,18 @@ adminRouter.get('/chats', async (req, res) => {
   const skip = (page - 1) * limit;
   const cutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
   const filter = {
-    $or: [{ lastActiveAt: { $gte: cutoff } }, { createdAt: { $gte: cutoff } }],
+    $or: [
+      { lastActiveAt: { $gte: cutoff } },
+      { createdAt: { $gte: cutoff } },
+      { lastActiveAt: null },
+      { lastActiveAt: { $exists: false } },
+    ],
   };
 
   const [total, sessions] = await Promise.all([
     ChatSession.countDocuments(filter),
     ChatSession.find(filter)
-      .sort({ lastActiveAt: -1 })
+      .sort({ lastActiveAt: -1, createdAt: -1, _id: -1 })
       .skip(skip)
       .limit(limit)
       .select('_id sessionId ip os browser device lastActiveAt createdAt messages')

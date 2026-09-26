@@ -126,12 +126,17 @@ chatRouter.post('/', authenticateProxy, chatLimiter, async (req, res) => {
     await ChatSession.findOneAndUpdate(
       { sessionId },
       {
-        $setOnInsert: { sessionId, ip, userAgent, os, browser, device },
+        $setOnInsert: {
+          sessionId,
+          createdAt: now,
+        },
         $set: {
-          lastActiveAt: new Date(),
-          ...(os && os !== 'Unknown OS' ? { os } : {}),
-          ...(browser && browser !== 'Unknown Browser' ? { browser } : {}),
-          ...(device ? { device } : {}),
+          lastActiveAt: now,
+          ip: ip || 'Unknown',
+          userAgent: userAgent || '',
+          os: os && os !== 'Unknown OS' ? os : 'Unknown OS',
+          browser: browser && browser !== 'Unknown Browser' ? browser : 'Unknown Browser',
+          device: device || 'Desktop',
         },
         $push: {
           messages: {
@@ -140,7 +145,7 @@ chatRouter.post('/', authenticateProxy, chatLimiter, async (req, res) => {
           },
         },
       },
-      { upsert: true }
+      { upsert: true, new: true }
     );
 
     // Link session to any recent visitor log with matching IP if not already linked
